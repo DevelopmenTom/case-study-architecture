@@ -10,3 +10,8 @@
 //     // Repositories
 //     UserRepository: Symbol.for('UserRepository'),
 // };
+
+export const TYPES = {
+    // Services
+    PasswordManagerService: Symbol.for('PasswordManagerService'),
+};
