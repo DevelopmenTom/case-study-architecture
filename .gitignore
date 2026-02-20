@@ -11,6 +11,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Jest Artifacts
+coverage
+
+# IDE Configs
 .vscode
 .idea
 
