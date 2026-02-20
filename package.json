@@ -16,7 +16,8 @@
     "test:watch": "jest -c ./jest.config.json --watchAll=true"
   },
   "devDependencies": {
-    "@marta/release-scripts": "git+ssh://git@github.com:hallomarta/release-scripts.git#master",
+    "@commitlint/cli": "^20.4.2",
+    "@commitlint/config-conventional": "^20.4.2",
     "@types/body-parser": "^1.19.2",
     "@types/express": "^4.17.17",
     "@types/supertest": "^2.0.12",
@@ -55,10 +56,5 @@
       "eslint",
       "prettier --write"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   }
 }
