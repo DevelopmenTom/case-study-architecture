@@ -18,7 +18,7 @@
     "rules": {
         "no-inferrable-types": 0,
         "space-before-function-paren": 0,
-        "semi": 0,
+        "semi": ["error", "always"],
         "padded-blocks": 0,
         "indent": ["error", 4],
         "@typescript-eslint/ban-types": 0,
