@@ -198,23 +198,21 @@ describe('UserController Integration Tests', () => {
         });
 
         it('should return 401 with Unauthorized message when a user tries to get profile of another user', async () => {
-            const userData1 = {
-                email: `user1-${Date.now()}@example.com`,
-                unhashedPassword: 'Password123',
-                firstName: 'User',
-                lastName: 'One',
-            };
+            const userData1 = await dataSource.getRepository(User).save({
+                email: `profile-test-${Date.now()}@example.com`,
+                password: 'hashedPassword123',
+                firstName: 'Profile',
+                lastName: 'User',
+            });
 
-            await request(baseUrl).post('/users/register').send(userData1);
+            const authService = diContainer.get<AuthService>(
+                DISymbols.AuthService
+            );
 
-            const loginResponse1 = await request(baseUrl)
-                .post('/users/login')
-                .send({
-                    email: userData1.email,
-                    password: userData1.unhashedPassword,
-                });
-
-            const token1 = loginResponse1.body.token;
+            const token1 = authService.generateToken({
+                userId: userData1.id,
+                role: UserRoles.USER,
+            });
 
             const savedUser2 = await dataSource.getRepository(User).save({
                 email: `user2-${Date.now()}@example.com`,
@@ -321,23 +319,21 @@ describe('UserController Integration Tests', () => {
         });
 
         it('should return 401 with Unauthorized message when a user tries to update profile of another user', async () => {
-            const userData1 = {
-                email: `user1-update-${Date.now()}@example.com`,
-                unhashedPassword: 'Password123',
-                firstName: 'User',
-                lastName: 'One',
-            };
+            const userData1 = await dataSource.getRepository(User).save({
+                email: `user2-update-${Date.now()}@example.com`,
+                password: 'hashedPassword123',
+                firstName: 'Profile',
+                lastName: 'User',
+            });
 
-            await request(baseUrl).post('/users/register').send(userData1);
+            const authService = diContainer.get<AuthService>(
+                DISymbols.AuthService
+            );
 
-            const loginResponse1 = await request(baseUrl)
-                .post('/users/login')
-                .send({
-                    email: userData1.email,
-                    password: userData1.unhashedPassword,
-                });
-
-            const token1 = loginResponse1.body.token;
+            const token1 = authService.generateToken({
+                userId: userData1.id,
+                role: UserRoles.USER,
+            });
 
             const savedUser2 = await dataSource.getRepository(User).save({
                 email: `user2-update-${Date.now()}@example.com`,
