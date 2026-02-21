@@ -1,0 +1,9 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "roots": ["<rootDir>/src"],
+  "testMatch": ["**/*.int-spec.ts"],
+  "moduleFileExtensions": ["ts", "js", "json"],
+  "testTimeout": 30000,
+  "setupFiles": ["<rootDir>/jest.setup.ts"]
+}

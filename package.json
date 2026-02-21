@@ -14,6 +14,7 @@
     "build": "rimraf ./dist && tsc",
     "start": "node ./dist/src/index.js",
     "test": "jest -c ./jest.config.json",
+    "test:int": "jest -c ./jest.int.config.json",
     "test:watch": "jest -c ./jest.config.json --watchAll=true"
   },
   "devDependencies": {
