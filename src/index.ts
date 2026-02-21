@@ -6,16 +6,19 @@ import { InversifyExpressServer } from 'inversify-express-utils';
 
 // import { createKafkaClient, Producer, Consumer } from '@marta/eventbus/dist';
 
-// import { getDataSource } from './typeormconfig';
-
-import { diContainer } from '../inversify.config';
-// import { TYPES } from './lib';
+import {
+    diContainer,
+    initializeDataSourceInContainer,
+} from '../inversify.config';
 // import { exampleEventHandler } from './events/handlers';
 
 dotenv.config();
 
 (async () => {
     try {
+        // Initialize database and bind to DI container
+        await initializeDataSourceInContainer();
+
         // Create Kafka producer and consumer instance
         // const kafkaClient = await createKafkaClient();
         // const producer = new Producer(kafkaClient);
@@ -25,14 +28,6 @@ dotenv.config();
         // await consumer.subscribe([
         //     { topic: 'test-topic', eventHandler: exampleEventHandler },
         // ]);
-
-        // Bind producer instance to the DI container so it can be accessed from anywhere
-        // diContainer.bind(TYPES.producer).toConstantValue(producer);
-
-        // DB setup
-        // const dataSource = await getDataSource();
-        // await dataSource.initialize();
-        // diContainer.bind(TYPES.DB).toConstantValue(dataSource);
 
         // Create app server
         const app = new InversifyExpressServer(diContainer, null, {

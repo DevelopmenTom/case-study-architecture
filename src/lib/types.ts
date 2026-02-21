@@ -12,6 +12,8 @@
 // };
 
 export const TYPES = {
+    DB: Symbol.for('DB'),
+
     // Services
     PasswordManagerService: Symbol.for('PasswordManagerService'),
 };
