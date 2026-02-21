@@ -21,6 +21,11 @@ export const authenticateRequest = () => {
         try {
             const payload = authService.verify(token);
 
+            req.body.auth = {
+                role: payload.role,
+                userId: payload.userId,
+            };
+
             if (payload.role === UserRoles.ADMIN) {
                 return next();
             }
