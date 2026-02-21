@@ -2,8 +2,7 @@
 //     producer: Symbol.for('producer'),
 
 //     // Services
-//     ExampleService: Symbol.for('ExampleService'),
-//     UserService: Symbol.for('UserService'),
+//     ExampleService: Symbol.for('ExampleService')
 // };
 
 export const DISymbols = {
@@ -11,6 +10,7 @@ export const DISymbols = {
 
     // Services
     PasswordManagerService: Symbol.for('PasswordManagerService'),
+    UserService: Symbol.for('UserService'),
 
     // Repositories
     UserRepository: Symbol.for('UserRepository'),

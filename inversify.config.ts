@@ -1,12 +1,13 @@
 import { Container } from 'inversify';
 
 import './src/lib/base-controller';
-import { PasswordManagerServiceImpl } from './src/services';
+import { PasswordManagerServiceImpl, UserServiceImpl } from './src/services';
 import { DISymbols } from './src/lib';
 import { UserRepositoryImpl } from './src/repositories';
 import { initializeDataSource } from './src/lib';
 import { UserRepository } from './src/types/repositories/UserRepository';
 import { PasswordManagerService } from './src/types/services/PasswordManagerService';
+import { UserService } from './src/types/services/UserService';
 // import './src/controllers';
 
 // import {
@@ -20,7 +21,7 @@ export const diContainer = new Container();
 
 // bind services
 // diContainer.bind<ExampleService>(TYPES.ExampleService).to(ExampleServiceImpl);
-// diContainer.bind<UserService>(TYPES.UserService).to(UserServiceImpl);
+diContainer.bind<UserService>(DISymbols.UserService).to(UserServiceImpl);
 diContainer
     .bind<PasswordManagerService>(DISymbols.PasswordManagerService)
     .to(PasswordManagerServiceImpl);
