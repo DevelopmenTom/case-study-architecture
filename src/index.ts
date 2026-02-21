@@ -1,4 +1,6 @@
 import { json } from 'body-parser';
+import helmet from 'helmet';
+import cors from 'cors';
 
 import 'reflect-metadata';
 import dotenv from 'dotenv';
@@ -37,6 +39,8 @@ dotenv.config();
             rootPath: '/partner-app/api',
         });
         app.setConfig(app => {
+            app.use(helmet());
+            app.use(cors());
             app.use(json());
         });
         app.setErrorConfig(app => {
