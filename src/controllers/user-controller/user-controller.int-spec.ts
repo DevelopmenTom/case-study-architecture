@@ -117,4 +117,26 @@ describe('UserController Integration Tests', () => {
             expect(loginResponse.body.error).toBe('Invalid credentials');
         });
     });
+
+    describe('GET /users/profile', () => {
+        it('should save a user to DB, then get the profile for that user', async () => {
+            const savedUser = await dataSource.getRepository(User).save({
+                email: `profile-test-${Date.now()}@example.com`,
+                password: 'hashedPassword123',
+                firstName: 'Profile',
+                lastName: 'User',
+            });
+
+            const response = await request(baseUrl)
+                .get('/users/profile')
+                .send({ userId: savedUser.id });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+                email: savedUser.email,
+                firstName: savedUser.firstName,
+                lastName: savedUser.lastName,
+            });
+        });
+    });
 });

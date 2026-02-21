@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { inject } from 'inversify';
 import {
     controller,
+    httpGet,
     httpPost,
     request,
     response,
@@ -18,6 +19,10 @@ import {
     loginUserSchema,
     LoginUserInput,
 } from '../../middlewares/schemas/login-user.schema';
+import {
+    getProfileSchema,
+    GetProfileInput,
+} from '../../middlewares/schemas/get-profile.schema';
 
 @controller('/users')
 export class UserController extends BaseController {
@@ -44,5 +49,12 @@ export class UserController extends BaseController {
         res.status(200).json({
             token,
         });
+    }
+
+    @httpGet('/profile', validateRequest(getProfileSchema))
+    async getProfile(@request() req: Request, @response() res: Response) {
+        const { userId } = req.body as GetProfileInput;
+        const profile = await this.userService.getProfile(userId);
+        res.status(200).json(profile);
     }
 }
