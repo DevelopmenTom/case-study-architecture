@@ -34,10 +34,10 @@ export class UserServiceImpl implements UserService {
             throw new Error('Invalid credentials');
         }
 
-        const isPasswordValid = await this.passwordManagerService.compare(
-            user.password,
-            password
-        );
+        const isPasswordValid = await this.passwordManagerService.compare({
+            storedPassword: user.password,
+            suppliedPassword: password,
+        });
 
         if (!isPasswordValid) {
             throw new Error('Invalid credentials');

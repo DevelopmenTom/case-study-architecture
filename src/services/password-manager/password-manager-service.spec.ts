@@ -40,7 +40,10 @@ describe('PasswordManagerService', () => {
             const password = 'correctPassword123';
             const hashedPassword = await service.toHash(password);
 
-            const result = await service.compare(hashedPassword, password);
+            const result = await service.compare({
+                storedPassword: hashedPassword,
+                suppliedPassword: password,
+            });
 
             expect(result).toBe(true);
         });
@@ -50,7 +53,10 @@ describe('PasswordManagerService', () => {
             const wrongPassword = 'wrongPassword456';
             const hashedPassword = await service.toHash(correctPassword);
 
-            const result = await service.compare(hashedPassword, wrongPassword);
+            const result = await service.compare({
+                storedPassword: hashedPassword,
+                suppliedPassword: wrongPassword,
+            });
 
             expect(result).toBe(false);
         });

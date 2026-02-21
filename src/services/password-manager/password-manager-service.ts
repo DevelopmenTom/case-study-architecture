@@ -17,10 +17,13 @@ export class PasswordManagerServiceImpl implements PasswordManagerService {
         return `${salt}.${hash.toString('hex')}`;
     }
 
-    async compare(
-        storedPassword: string,
-        suppliedPassword: string
-    ): Promise<boolean> {
+    async compare({
+        storedPassword,
+        suppliedPassword,
+    }: {
+        storedPassword: string;
+        suppliedPassword: string;
+    }): Promise<boolean> {
         const [salt, storedHash] = storedPassword.split('.');
         const suppliedHash = (await scryptAsync(
             suppliedPassword,
