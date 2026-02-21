@@ -9,6 +9,7 @@ export const DISymbols = {
     DB: Symbol.for('DB'),
 
     // Services
+    AuthService: Symbol.for('AuthService'),
     PasswordManagerService: Symbol.for('PasswordManagerService'),
     UserService: Symbol.for('UserService'),
 
