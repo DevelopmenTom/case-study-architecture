@@ -37,7 +37,9 @@ export class UserServiceImpl implements UserService {
         const user = await this.userRepository.findByEmail(email);
 
         if (!user) {
-            throw new Error('Invalid credentials');
+            const error = new Error('Invalid credentials') as any;
+            error.statusCode = 400;
+            throw error;
         }
 
         const isPasswordValid = await this.passwordManagerService.compare({
@@ -46,7 +48,9 @@ export class UserServiceImpl implements UserService {
         });
 
         if (!isPasswordValid) {
-            throw new Error('Invalid credentials');
+            const error = new Error('Invalid credentials') as any;
+            error.statusCode = 400;
+            throw error;
         }
 
         return this.authService.generateToken({

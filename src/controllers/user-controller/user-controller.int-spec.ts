@@ -73,4 +73,48 @@ describe('UserController Integration Tests', () => {
             expect(response.body.error).toBe('Internal Server Error');
         });
     });
+
+    describe('POST /users/login', () => {
+        it('should register a user, then authenticate as this user and expect to get a token in response', async () => {
+            const userData = {
+                email: `logintest${Date.now()}@example.com`,
+                unhashedPassword: 'Password123',
+                firstName: 'Login',
+                lastName: 'Test',
+            };
+
+            await request(baseUrl).post('/users/register').send(userData);
+
+            const loginResponse = await request(baseUrl)
+                .post('/users/login')
+                .send({
+                    email: userData.email,
+                    password: userData.unhashedPassword,
+                });
+
+            expect(loginResponse.status).toBe(200);
+            expect(typeof loginResponse.body.token).toBe('string');
+        });
+
+        it('should register as a user, call authenticate with wrong password, expect code 400 and message Invalid credentials', async () => {
+            const userData = {
+                email: `wrongpassword${Date.now()}@example.com`,
+                unhashedPassword: 'Password123',
+                firstName: 'Wrong',
+                lastName: 'Password',
+            };
+
+            await request(baseUrl).post('/users/register').send(userData);
+
+            const loginResponse = await request(baseUrl)
+                .post('/users/login')
+                .send({
+                    email: userData.email,
+                    password: 'WrongPassword456',
+                });
+
+            expect(loginResponse.status).toBe(400);
+            expect(loginResponse.body.error).toBe('Invalid credentials');
+        });
+    });
 });
