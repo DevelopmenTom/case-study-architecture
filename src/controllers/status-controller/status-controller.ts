@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { controller, httpGet, response } from 'inversify-express-utils';
 
-import { BaseController } from '../lib';
+import { BaseController } from '../../lib';
 
 @controller('/status')
 export class StatusController extends BaseController {

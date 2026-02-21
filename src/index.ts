@@ -11,7 +11,7 @@ import {
     initializeDataSourceInContainer,
 } from '../inversify.config';
 // import { exampleEventHandler } from './events/handlers';
-import './controllers/status-controller';
+import './controllers/status-controller/status-controller';
 
 dotenv.config();
 
