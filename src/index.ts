@@ -1,9 +1,8 @@
-import { json } from 'body-parser';
-import helmet from 'helmet';
-import cors from 'cors';
-
 import 'reflect-metadata';
+import { json } from 'body-parser';
+import cors from 'cors';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
 import { InversifyExpressServer } from 'inversify-express-utils';
 
 // import { createKafkaClient, Producer, Consumer } from '@marta/eventbus/dist';
@@ -12,6 +11,7 @@ import {
     diContainer,
     initializeDataSourceInContainer,
 } from '../inversify.config';
+
 // import { exampleEventHandler } from './events/handlers';
 import './controllers/status-controller/status-controller';
 import './controllers/user-controller/user-controller';

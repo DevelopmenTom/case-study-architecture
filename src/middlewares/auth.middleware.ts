@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
+
 import { diContainer } from '../../inversify.config';
 import { DISymbols } from '../lib';
-import { AuthService } from '../types/services';
 import { UserRoles } from '../types/enums';
+import { AuthService } from '../types/services';
 
 export const authenticateRequest = () => {
     const authService = diContainer.get<AuthService>(DISymbols.AuthService);

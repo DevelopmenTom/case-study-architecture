@@ -1,7 +1,8 @@
 import { injectable } from 'inversify';
 import * as jwt from 'jsonwebtoken';
-import { AuthService } from '../../types/services';
+
 import { ITokenPayload } from '../../types/payloads';
+import { AuthService } from '../../types/services';
 
 @injectable()
 export class AuthServiceImpl implements AuthService {

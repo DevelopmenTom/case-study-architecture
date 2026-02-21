@@ -1,8 +1,9 @@
+import * as jwt from 'jsonwebtoken';
+
 import { diContainer } from '../../../inversify.config';
-import { AuthService } from '../../types/services';
 import { DISymbols } from '../../lib';
 import { UserRoles } from '../../types/enums';
-import * as jwt from 'jsonwebtoken';
+import { AuthService } from '../../types/services';
 
 describe('AuthService', () => {
     let authService: AuthService;

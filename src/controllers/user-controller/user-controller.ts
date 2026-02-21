@@ -10,25 +10,25 @@ import {
 } from 'inversify-express-utils';
 
 import { BaseController, DISymbols } from '../../lib';
-import { UserService } from '../../types/services';
-import { validateRequest } from '../../middlewares/validate-request.middleware';
 import { authenticateRequest } from '../../middlewares/auth.middleware';
-import {
-    registerUserSchema,
-    RegisterUserInput,
-} from '../../middlewares/schemas/register-user.schema';
-import {
-    loginUserSchema,
-    LoginUserInput,
-} from '../../middlewares/schemas/login-user.schema';
 import {
     getProfileSchema,
     GetProfileInput,
 } from '../../middlewares/schemas/get-profile.schema';
 import {
+    loginUserSchema,
+    LoginUserInput,
+} from '../../middlewares/schemas/login-user.schema';
+import {
+    registerUserSchema,
+    RegisterUserInput,
+} from '../../middlewares/schemas/register-user.schema';
+import {
     updateProfileSchema,
     UpdateProfileInput,
 } from '../../middlewares/schemas/update-profile.schema';
+import { validateRequest } from '../../middlewares/validate-request.middleware';
+import { UserService } from '../../types/services';
 
 @controller('/users')
 export class UserController extends BaseController {

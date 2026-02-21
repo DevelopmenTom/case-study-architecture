@@ -1,10 +1,10 @@
 import { Container } from 'inversify';
 
 import './src/lib/base-controller';
-import { AuthServiceImpl, PasswordManagerServiceImpl, UserServiceImpl } from './src/services';
 import { DISymbols } from './src/lib';
-import { UserRepositoryImpl } from './src/repositories';
 import { initializeDataSource } from './src/lib';
+import { UserRepositoryImpl } from './src/repositories';
+import { AuthServiceImpl, PasswordManagerServiceImpl, UserServiceImpl } from './src/services';
 import { UserRepository } from './src/types/repositories';
 import { AuthService, PasswordManagerService, UserService } from './src/types/services';
 // import './src/controllers';

@@ -1,18 +1,19 @@
 import { inject, injectable } from 'inversify';
-import { DISymbols } from '../../lib';
+
 import { User } from '../../entities';
-import { UserRepository } from '../../types/repositories';
-import {
-    AuthService,
-    PasswordManagerService,
-    UserService,
-} from '../../types/services';
+import { DISymbols } from '../../lib';
 import {
     RegisterUserDto,
     UpdateProfileDto,
     UserProfileDto,
 } from '../../types/Dto';
 import { UserRoles } from '../../types/enums';
+import { UserRepository } from '../../types/repositories';
+import {
+    AuthService,
+    PasswordManagerService,
+    UserService,
+} from '../../types/services';
 
 @injectable()
 export class UserServiceImpl implements UserService {

@@ -14,7 +14,7 @@
     "parserOptions": {
         "ecmaVersion": 2018
     },
-    "plugins": ["@typescript-eslint", "jest"],
+    "plugins": ["@typescript-eslint", "import", "jest"],
     "rules": {
         "no-inferrable-types": 0,
         "space-before-function-paren": 0,
@@ -25,6 +25,17 @@
         "@typescript-eslint/no-inferrable-types": 0,
         "@typescript-eslint/no-explicit-any": 0,
         "@typescript-eslint/explicit-module-boundary-types": 0,
-        "@typescript-eslint/no-non-null-assertion": 0
+        "@typescript-eslint/no-non-null-assertion": 0,
+        "import/order": [
+            "error",
+            {
+                "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
+                "newlines-between": "always",
+                "alphabetize": {
+                    "order": "asc",
+                    "caseInsensitive": true
+                }
+            }
+        ]
     }
 }

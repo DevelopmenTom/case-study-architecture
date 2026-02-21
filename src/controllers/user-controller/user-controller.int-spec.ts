@@ -1,13 +1,14 @@
 import request from 'supertest';
 import { DataSource } from 'typeorm';
+
 import {
     diContainer,
     initializeDataSourceInContainer,
 } from '../../../inversify.config';
-import { DISymbols } from '../../lib';
 import { User } from '../../entities';
-import { AuthService } from '../../types/services';
+import { DISymbols } from '../../lib';
 import { UserRoles } from '../../types/enums';
+import { AuthService } from '../../types/services';
 
 describe('UserController Integration Tests', () => {
     const baseUrl = 'http://localhost:9000/partner-app/api';

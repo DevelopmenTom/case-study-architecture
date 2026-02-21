@@ -1,12 +1,13 @@
+import { randomUUID } from 'crypto';
+
 import {
     diContainer,
     initializeDataSourceInContainer,
 } from '../../../inversify.config';
+import { User } from '../../entities';
 import { DISymbols } from '../../lib';
 import { mockUserData } from '../../testHelpers/mockUserData';
-import { randomUUID } from 'crypto';
 import { UserService } from '../../types/services';
-import { User } from '../../entities';
 
 describe('UserService', () => {
     let userService: UserService;

@@ -1,7 +1,9 @@
 import { scrypt, randomBytes } from 'crypto';
-import { injectable } from 'inversify';
 import { promisify } from 'util';
-import { PasswordManagerService } from '../../types/services/PasswordManagerService';
+
+import { injectable } from 'inversify';
+
+import { PasswordManagerService } from '../../types/services';
 
 const scryptAsync = promisify(scrypt);
 

@@ -1,7 +1,6 @@
 import { SSMClient, GetParametersCommand } from '@aws-sdk/client-ssm';
-
-import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { DataSource } from 'typeorm';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
 const getParametersFromSSM = async () => {
     try {

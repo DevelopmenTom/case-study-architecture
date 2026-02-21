@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
+
 import { diContainer } from '../../inversify.config';
-import { AuthService } from '../types/services';
 import { DISymbols } from '../lib';
 import { UserRoles } from '../types/enums';
+import { AuthService } from '../types/services';
+
 import { authenticateRequest } from './auth.middleware';
 
 describe('authenticateRequest', () => {

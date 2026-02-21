@@ -1,6 +1,8 @@
 import { DataSource, Repository } from 'typeorm';
-import { User } from './user';
+
 import { getDataSource } from '../../typeormconfig';
+
+import { User } from './user';
 
 describe('User Entity', () => {
     let dataSource: DataSource;
