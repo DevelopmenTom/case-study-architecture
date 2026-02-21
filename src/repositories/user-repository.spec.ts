@@ -4,7 +4,7 @@ import {
     UpdateUserDto,
 } from './user-repository';
 import { User } from '../entities';
-import { TYPES } from '../lib';
+import { DISymbols } from '../lib';
 import {
     diContainer,
     initializeDataSourceInContainer,
@@ -20,8 +20,10 @@ describe('UserRepository', () => {
 
     beforeAll(async () => {
         await initializeDataSourceInContainer();
-        dataSource = diContainer.get<DataSource>(TYPES.DB);
-        userRepository = diContainer.get<UserRepository>(TYPES.UserRepository);
+        dataSource = diContainer.get<DataSource>(DISymbols.DB);
+        userRepository = diContainer.get<UserRepository>(
+            DISymbols.UserRepository
+        );
     });
 
     describe('findByEmail', () => {

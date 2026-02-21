@@ -3,14 +3,14 @@ import {
     PasswordManagerServiceImpl,
 } from './password-manager-service';
 import { diContainer } from '../../inversify.config';
-import { TYPES } from '../lib/types';
+import { DISymbols } from '../lib/DISymbols';
 
 describe('PasswordManagerService', () => {
     let service: PasswordManagerServiceImpl;
 
     beforeEach(() => {
         service = diContainer.get<PasswordManagerService>(
-            TYPES.PasswordManagerService
+            DISymbols.PasswordManagerService
         );
     });
 

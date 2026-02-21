@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { DataSource, Repository } from 'typeorm';
 import { User } from '../entities';
-import { TYPES } from '../lib';
+import { DISymbols } from '../lib';
 
 export interface CreateUserDto {
     email: string;
@@ -26,7 +26,7 @@ export interface UserRepository {
 export class UserRepositoryImpl implements UserRepository {
     private repository: Repository<User>;
 
-    constructor(@inject(TYPES.DB) dataSource: DataSource) {
+    constructor(@inject(DISymbols.DB) dataSource: DataSource) {
         this.repository = dataSource.getRepository(User);
     }
 

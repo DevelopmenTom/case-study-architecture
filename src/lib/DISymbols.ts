@@ -7,7 +7,7 @@
 //     PasswordManagerService: Symbol.for('PasswordManagerService'),
 // };
 
-export const TYPES = {
+export const DISymbols = {
     DB: Symbol.for('DB'),
 
     // Services
