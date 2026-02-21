@@ -151,6 +151,36 @@ describe('UserController Integration Tests', () => {
             });
         });
 
+        it('should save a user to DB, then get the profile for that user as ADMIN', async () => {
+            const savedUser = await dataSource.getRepository(User).save({
+                email: `profile-test-${Date.now()}@example.com`,
+                password: 'hashedPassword123',
+                firstName: 'Profile',
+                lastName: 'User',
+            });
+
+            const authService = diContainer.get<AuthService>(
+                DISymbols.AuthService
+            );
+
+            const adminToken = authService.generateToken({
+                userId: crypto.randomUUID(),
+                role: UserRoles.ADMIN,
+            });
+
+            const response = await request(baseUrl)
+                .get('/users/profile')
+                .set('Authorization', `Bearer ${adminToken}`)
+                .send({ userId: savedUser.id });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+                email: savedUser.email,
+                firstName: savedUser.firstName,
+                lastName: savedUser.lastName,
+            });
+        });
+
         it('should return 401 when no auth header is provided', async () => {
             const savedUser = await dataSource.getRepository(User).save({
                 email: `profile-test-${Date.now()}@example.com`,
