@@ -2,10 +2,10 @@ import {
     diContainer,
     initializeDataSourceInContainer,
 } from '../../../inversify.config';
-import { UserService } from '../../types/services/UserService';
 import { DISymbols } from '../../lib';
 import { mockUserData } from '../../testHelpers/mockUserData';
 import { randomUUID } from 'crypto';
+import { UserService } from '../../types/services';
 
 describe('UserService', () => {
     let userService: UserService;

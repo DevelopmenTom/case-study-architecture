@@ -1,5 +1,5 @@
 import { diContainer } from '../../../inversify.config';
-import { AuthService } from '../../types/services/AuthService';
+import { AuthService } from '../../types/services';
 import { DISymbols } from '../../lib';
 import { UserRoles } from '../../types/enums';
 import * as jwt from 'jsonwebtoken';

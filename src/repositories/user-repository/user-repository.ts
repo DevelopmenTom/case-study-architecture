@@ -2,9 +2,8 @@ import { inject, injectable } from 'inversify';
 import { DataSource, Repository } from 'typeorm';
 import { User } from '../../entities';
 import { DISymbols } from '../../lib';
-import { CreateUserDto } from 'types/Dto/CreateUserDto';
-import { UpdateUserDto } from '../../types/Dto/UpdateUserDto';
-import { UserRepository } from '../../types/repositories/UserRepository';
+import { CreateUserDto, UpdateUserDto } from '../../types/Dto';
+import { UserRepository } from '../../types/repositories';
 
 @injectable()
 export class UserRepositoryImpl implements UserRepository {

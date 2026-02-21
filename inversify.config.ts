@@ -5,10 +5,8 @@ import { AuthServiceImpl, PasswordManagerServiceImpl, UserServiceImpl } from './
 import { DISymbols } from './src/lib';
 import { UserRepositoryImpl } from './src/repositories';
 import { initializeDataSource } from './src/lib';
-import { UserRepository } from './src/types/repositories/UserRepository';
-import { PasswordManagerService } from './src/types/services/PasswordManagerService';
-import { UserService } from './src/types/services/UserService';
-import { AuthService } from './src/types/services/AuthService';
+import { UserRepository } from './src/types/repositories';
+import { AuthService, PasswordManagerService, UserService } from './src/types/services';
 // import './src/controllers';
 
 // import {
