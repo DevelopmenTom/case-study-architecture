@@ -1,15 +1,15 @@
-import { User } from '../entities';
-import { DISymbols } from '../lib';
+import { User } from '../../entities';
+import { DISymbols } from '../../lib';
 import {
     diContainer,
     initializeDataSourceInContainer,
-} from '../../inversify.config';
-import { mockUserData } from '../testHelpers/mockUserData';
+} from '../../../inversify.config';
+import { mockUserData } from '../../testHelpers/mockUserData';
 import { randomUUID } from 'crypto';
 import { DataSource } from 'typeorm';
-import { UserRepository } from '../types/repositories/UserRepository';
-import { CreateUserDto } from '../types/Dto/CreateUserDto';
-import { UpdateUserDto } from '../types/Dto/UpdateUserDto';
+import { UserRepository } from '../../types/repositories/UserRepository';
+import { CreateUserDto } from '../../types/Dto/CreateUserDto';
+import { UpdateUserDto } from '../../types/Dto/UpdateUserDto';
 
 describe('UserRepository', () => {
     let dataSource: DataSource;
