@@ -1,6 +1,31 @@
 version: '3.8'
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: case_study_app
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./src:/app/src
+      - ./inversify.config.ts:/app/inversify.config.ts
+      - ./tsconfig.json:/app/tsconfig.json
+      - /app/node_modules
+      - /app/dist
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      PORT: 9000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: yarn dev:docker
+
   postgres:
     image: postgres:16-alpine
     container_name: case_study_postgres

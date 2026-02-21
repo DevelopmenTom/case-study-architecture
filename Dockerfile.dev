@@ -1,0 +1,18 @@
+FROM node:24-alpine3.20
+
+WORKDIR /app
+
+# Install dependencies for git/ssh if needed
+RUN apk add --no-cache openssh git
+
+# Copy package files
+COPY package.json yarn.lock ./
+
+# Install all dependencies (including dev dependencies)
+RUN yarn install
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 9000
