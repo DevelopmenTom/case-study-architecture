@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Start services with Docker Compose
+        run: docker compose up -d
+
+      - name: Wait for database to be ready
+        run: |
+          timeout 60 sh -c 'until docker compose exec -T postgres pg_isready -U postgres; do sleep 2; done'
+
+      - name: Run unit tests
+        run: yarn test:unit --runInBand
+        env:
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5433
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: your_password
+          DATABASE_NAME: case_study_db
+          JWT_SECRET: your_super_secret_jwt_key_change_in_production
+          JWT_EXPIRES_IN: 24h
+          PORT: 9000
+
+      - name: Run integration tests
+        run: yarn test:int --runInBand
+        env:
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5433
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: your_password
+          DATABASE_NAME: case_study_db
+          JWT_SECRET: your_super_secret_jwt_key_change_in_production
+          JWT_EXPIRES_IN: 24h
+          PORT: 9000
+
+      - name: Build application
+        run: yarn build
+
+      - name: Stop services
+        if: always()
+        run: docker compose down -v
