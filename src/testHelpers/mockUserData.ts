@@ -1,4 +1,4 @@
-import { CreateUserDto } from '../repositories';
+import { CreateUserDto } from '../types/Dto/CreateUserDto';
 
 export const mockUserData = (): CreateUserDto => {
     return {

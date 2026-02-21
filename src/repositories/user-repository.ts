@@ -2,25 +2,9 @@ import { inject, injectable } from 'inversify';
 import { DataSource, Repository } from 'typeorm';
 import { User } from '../entities';
 import { DISymbols } from '../lib';
-
-export interface CreateUserDto {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-}
-
-export interface UpdateUserDto {
-    firstName?: string;
-    lastName?: string;
-}
-
-export interface UserRepository {
-    findByEmail(email: string): Promise<User | null>;
-    findById(id: string): Promise<User | null>;
-    create(userData: CreateUserDto): Promise<User>;
-    update(id: string, userData: UpdateUserDto): Promise<User>;
-}
+import { CreateUserDto } from 'types/Dto/CreateUserDto';
+import { UpdateUserDto } from '../types/Dto/UpdateUserDto';
+import { UserRepository } from '../types/repositories/UserRepository';
 
 @injectable()
 export class UserRepositoryImpl implements UserRepository {

@@ -1,8 +1,3 @@
-import {
-    UserRepository,
-    CreateUserDto,
-    UpdateUserDto,
-} from './user-repository';
 import { User } from '../entities';
 import { DISymbols } from '../lib';
 import {
@@ -12,6 +7,9 @@ import {
 import { mockUserData } from '../testHelpers/mockUserData';
 import { randomUUID } from 'crypto';
 import { DataSource } from 'typeorm';
+import { UserRepository } from '../types/repositories/UserRepository';
+import { CreateUserDto } from '../types/Dto/CreateUserDto';
+import { UpdateUserDto } from '../types/Dto/UpdateUserDto';
 
 describe('UserRepository', () => {
     let dataSource: DataSource;

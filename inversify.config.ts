@@ -3,8 +3,9 @@ import { Container } from 'inversify';
 import './src/lib/base-controller';
 import { PasswordManagerService, PasswordManagerServiceImpl } from './src/services';
 import { DISymbols } from './src/lib/DISymbols';
-import { UserRepository, UserRepositoryImpl } from './src/repositories';
+import { UserRepositoryImpl } from './src/repositories';
 import { initializeDataSource } from './src/lib/data-source';
+import { UserRepository } from './src/types/repositories/UserRepository';
 // import './src/controllers';
 
 // import {
