@@ -12,6 +12,7 @@ import {
 } from '../inversify.config';
 // import { exampleEventHandler } from './events/handlers';
 import './controllers/status-controller/status-controller';
+import './controllers/user-controller/user-controller';
 
 dotenv.config();
 
