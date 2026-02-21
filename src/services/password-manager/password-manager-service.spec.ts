@@ -2,8 +2,8 @@ import {
     PasswordManagerService,
     PasswordManagerServiceImpl,
 } from './password-manager-service';
-import { diContainer } from '../../inversify.config';
-import { DISymbols } from '../lib/DISymbols';
+import { diContainer } from '../../../inversify.config';
+import { DISymbols } from '../../lib/DISymbols';
 
 describe('PasswordManagerService', () => {
     let service: PasswordManagerServiceImpl;
