@@ -57,8 +57,8 @@ describe('authenticateRequest', () => {
         });
     });
 
-    describe('attaching auth to req.body', () => {
-        it('should attach role and userId to req.body.auth for admin user', () => {
+    describe('attaching auth to req.auth', () => {
+        it('should attach role and userId to req.auth for admin user', () => {
             const payload = { userId: 'admin-123', role: UserRoles.ADMIN };
             const token = authService.generateToken(payload);
 
@@ -67,7 +67,7 @@ describe('authenticateRequest', () => {
             const middleware = authenticateRequest();
             middleware(mockReq as Request, mockRes as Response, mockNext);
 
-            expect(mockReq.body.auth).toEqual({
+            expect(mockReq.auth).toEqual({
                 role: UserRoles.ADMIN,
                 userId: 'admin-123',
             });
@@ -75,7 +75,7 @@ describe('authenticateRequest', () => {
             expect(mockNext).toHaveBeenCalled();
         });
 
-        it('should attach role and userId to req.body.auth for regular user', () => {
+        it('should attach role and userId to req.auth for regular user', () => {
             const payload = { userId: 'user-456', role: UserRoles.USER };
             const token = authService.generateToken(payload);
 
@@ -85,7 +85,7 @@ describe('authenticateRequest', () => {
             const middleware = authenticateRequest();
             middleware(mockReq as Request, mockRes as Response, mockNext);
 
-            expect(mockReq.body.auth).toEqual({
+            expect(mockReq.auth).toEqual({
                 role: UserRoles.USER,
                 userId: 'user-456',
             });
@@ -102,7 +102,7 @@ describe('authenticateRequest', () => {
             const middleware = authenticateRequest();
             middleware(mockReq as Request, mockRes as Response, mockNext);
 
-            expect(mockReq.body.auth).toEqual({
+            expect(mockReq.auth).toEqual({
                 role: UserRoles.USER,
                 userId: 'user-789',
             });

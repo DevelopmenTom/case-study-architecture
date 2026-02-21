@@ -21,7 +21,7 @@ export const authenticateRequest = () => {
         try {
             const payload = authService.verify(token);
 
-            req.body.auth = {
+            req.auth = {
                 role: payload.role,
                 userId: payload.userId,
             };
