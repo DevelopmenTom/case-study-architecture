@@ -232,3 +232,47 @@ These are optional but will be considered favorably:
 If you have any questions about the requirements or need clarification, please reach out to your hiring contact.
 
 **Good luck! We're excited to see your solution.** 🎉
+
+---
+
+## 💭 Design Decisions and Known Issues
+
+### Request Validation Strategy
+I have implemented request payload validation using **Zod** after writing the internals of the app using TypeScript DTOs. This approach is functional but suboptimal.
+
+**Decision postponed:** Choosing between Zod type inference throughout the stack vs. class-validator with DTOs. This decision depends on:
+- **GraphQL adoption:** Makes the dilemma irrelevant if we use GraphQL
+- **Client SDK implementation:** If we build an SDK, we'll want to use the same validation tool from client through controller layer
+
+### CI/CD Implementation
+I have scaffolded a basic CI pipeline using **GitHub Actions** (dockerizing the app in the process). The pipeline is functional but has room for improvement:
+
+**Current limitations:**
+1. **Test execution:** Database migrations need to run before tests, which currently forces tests to run serially (`--runInBand`). Running tests in parallel causes race conditions when creating the User table.
+2. **Environment variables:** Secure environment variable configuration is needed for deployment flows. Not a priority yet since CI only verifies test coverage and builds (no secrets required).
+
+### Input Sanitization
+I did not implement additional input sanitization beyond validation. Since we're strictly using TypeORM repository methods, there's no SQL injection risk. This is a conscious decision, not an oversight.
+
+
+---
+
+## 💡 Future Enhancements
+
+Beyond the bonus points listed above, here are additional improvements to consider:
+
+1. **Advanced Query Layer**
+   - Implement query files with filters, sorting, and pagination
+   - Add ReadMappers and DataLoader for optimized data fetching
+
+2. **Logging Infrastructure**
+   - Introduce a proper logging service (requires knowledge of production environment and telemetry preferences)
+
+3. **Enhanced JWT Security**
+   - Implement ECC (Elliptic Curve Cryptography) for JWT signing in production environments
+
+4. **Event-Driven Architecture**
+   - Introduce an internal command-event bus to decompose services into smaller, more reusable components
+
+5. **GraphQL Migration**
+   - Evaluate GraphQL for API endpoints (decision depends on client requirements and schema complexity)
