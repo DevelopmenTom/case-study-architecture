@@ -63,7 +63,7 @@ const getDBConfig = async () => {
 export const getDataSource = async (): Promise<DataSource> => {
     const config: PostgresConnectionOptions = {
         type: 'postgres',
-        entities: [__dirname + '/entities/**/*.{js,ts}'],
+        entities: [__dirname + '/entities/**/!(*.spec).{js,ts}'],
         ...(await getDBConfig()),
     };
 
