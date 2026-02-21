@@ -232,4 +232,131 @@ describe('UserController Integration Tests', () => {
             expect(response.body.error).toBe('Unauthorized');
         });
     });
+
+    describe('PUT /users/profile', () => {
+        it('should save a user to DB, then update their profile', async () => {
+            const savedUser = await dataSource.getRepository(User).save({
+                email: `update-profile-test-${Date.now()}@example.com`,
+                password: 'hashedPassword123',
+                firstName: 'Original',
+                lastName: 'Name',
+            });
+
+            const authService = diContainer.get<AuthService>(
+                DISymbols.AuthService
+            );
+
+            const token = authService.generateToken({
+                userId: savedUser.id,
+                role: UserRoles.USER,
+            });
+
+            const response = await request(baseUrl)
+                .put('/users/profile')
+                .set('Authorization', `Bearer ${token}`)
+                .send({
+                    userId: savedUser.id,
+                    firstName: 'Updated',
+                    lastName: 'User',
+                });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+                email: savedUser.email,
+                firstName: 'Updated',
+                lastName: 'User',
+            });
+        });
+
+        it('should save a user to DB, then update their profile as ADMIN', async () => {
+            const savedUser = await dataSource.getRepository(User).save({
+                email: `update-profile-admin-test-${Date.now()}@example.com`,
+                password: 'hashedPassword123',
+                firstName: 'Original',
+                lastName: 'Name',
+            });
+
+            const authService = diContainer.get<AuthService>(
+                DISymbols.AuthService
+            );
+
+            const adminToken = authService.generateToken({
+                userId: crypto.randomUUID(),
+                role: UserRoles.ADMIN,
+            });
+
+            const response = await request(baseUrl)
+                .put('/users/profile')
+                .set('Authorization', `Bearer ${adminToken}`)
+                .send({
+                    userId: savedUser.id,
+                    firstName: 'AdminUpdated',
+                    lastName: 'AdminUser',
+                });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+                email: savedUser.email,
+                firstName: 'AdminUpdated',
+                lastName: 'AdminUser',
+            });
+        });
+
+        it('should return 401 when no auth header is provided', async () => {
+            const savedUser = await dataSource.getRepository(User).save({
+                email: `update-profile-no-auth-${Date.now()}@example.com`,
+                password: 'hashedPassword123',
+                firstName: 'Original',
+                lastName: 'Name',
+            });
+
+            const response = await request(baseUrl).put('/users/profile').send({
+                userId: savedUser.id,
+                firstName: 'Updated',
+                lastName: 'User',
+            });
+
+            expect(response.status).toBe(401);
+            expect(response.body.error).toBe('Unauthorized');
+        });
+
+        it('should return 401 with Unauthorized message when a user tries to update profile of another user', async () => {
+            const userData1 = {
+                email: `user1-update-${Date.now()}@example.com`,
+                unhashedPassword: 'Password123',
+                firstName: 'User',
+                lastName: 'One',
+            };
+
+            await request(baseUrl).post('/users/register').send(userData1);
+
+            const loginResponse1 = await request(baseUrl)
+                .post('/users/login')
+                .send({
+                    email: userData1.email,
+                    password: userData1.unhashedPassword,
+                });
+
+            const token1 = loginResponse1.body.token;
+
+            const savedUser2 = await dataSource.getRepository(User).save({
+                email: `user2-update-${Date.now()}@example.com`,
+                password: 'hashedPassword123',
+                firstName: 'User',
+                lastName: 'Two',
+            });
+
+            const response = await request(baseUrl)
+                .put('/users/profile')
+                .set('Authorization', `Bearer ${token1}`)
+                .send({
+                    userId: savedUser2.id,
+                    firstName: 'Hacked',
+                    lastName: 'User',
+                });
+
+            expect(response.status).toBe(401);
+            expect(response.body.error).toBe('Unauthorized');
+        });
+    });
 });

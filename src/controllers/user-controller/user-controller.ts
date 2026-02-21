@@ -4,6 +4,7 @@ import {
     controller,
     httpGet,
     httpPost,
+    httpPut,
     request,
     response,
 } from 'inversify-express-utils';
@@ -24,6 +25,10 @@ import {
     getProfileSchema,
     GetProfileInput,
 } from '../../middlewares/schemas/get-profile.schema';
+import {
+    updateProfileSchema,
+    UpdateProfileInput,
+} from '../../middlewares/schemas/update-profile.schema';
 
 @controller('/users')
 export class UserController extends BaseController {
@@ -60,6 +65,20 @@ export class UserController extends BaseController {
     async getProfile(@request() req: Request, @response() res: Response) {
         const { userId } = req.body as GetProfileInput;
         const profile = await this.userService.getProfile(userId);
+        res.status(200).json(profile);
+    }
+
+    @httpPut(
+        '/profile',
+        validateRequest(updateProfileSchema),
+        authenticateRequest()
+    )
+    async updateProfile(@request() req: Request, @response() res: Response) {
+        const { userId, ...updateData } = req.body as UpdateProfileInput;
+        const profile = await this.userService.updateProfile(
+            userId,
+            updateData
+        );
         res.status(200).json(profile);
     }
 }
