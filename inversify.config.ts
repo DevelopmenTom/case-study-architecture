@@ -2,9 +2,9 @@ import { Container } from 'inversify';
 
 import './src/lib/base-controller';
 import { PasswordManagerService, PasswordManagerServiceImpl } from './src/services';
-import { DISymbols } from './src/lib/DISymbols';
+import { DISymbols } from './src/lib';
 import { UserRepositoryImpl } from './src/repositories';
-import { initializeDataSource } from './src/lib/data-source';
+import { initializeDataSource } from './src/lib';
 import { UserRepository } from './src/types/repositories/UserRepository';
 // import './src/controllers';
 
@@ -29,8 +29,7 @@ diContainer.bind<UserRepository>(DISymbols.UserRepository).to(UserRepositoryImpl
 
 export const initializeDataSourceInContainer = async () => {
     const dataSource = await initializeDataSource();
-
-    // Only bind if not already bound
+    
     if (!diContainer.isBound(DISymbols.DB)) {
         diContainer.bind(DISymbols.DB).toConstantValue(dataSource);
     }
