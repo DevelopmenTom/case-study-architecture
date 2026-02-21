@@ -6,6 +6,8 @@ export const errorHandler = (
     res: Response,
     next: NextFunction
 ) => {
+    console.error(error);
+
     const statusCode = error.statusCode;
 
     if (!statusCode || statusCode < 400 || statusCode >= 500) {
