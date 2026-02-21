@@ -12,7 +12,6 @@ import {
     initializeDataSourceInContainer,
 } from '../inversify.config';
 
-// import { exampleEventHandler } from './events/handlers';
 import './controllers/status-controller/status-controller';
 import './controllers/user-controller/user-controller';
 import { errorHandler } from './middlewares/error-handler.middleware';
@@ -21,7 +20,6 @@ dotenv.config();
 
 (async () => {
     try {
-        // Initialize database and bind to DI container
         await initializeDataSourceInContainer();
 
         // Create Kafka producer and consumer instance
@@ -34,7 +32,6 @@ dotenv.config();
         //     { topic: 'test-topic', eventHandler: exampleEventHandler },
         // ]);
 
-        // Create app server
         const app = new InversifyExpressServer(diContainer, null, {
             rootPath: '/partner-app/api',
         });
