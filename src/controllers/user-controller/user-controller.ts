@@ -9,6 +9,11 @@ import {
 
 import { BaseController, DISymbols } from '../../lib';
 import { UserService } from '../../types/services';
+import { validateRequest } from '../../middlewares/validate-request.middleware';
+import {
+    registerUserSchema,
+    RegisterUserInput,
+} from '../../middlewares/schemas/register-user.schema';
 
 @controller('/users')
 export class UserController extends BaseController {
@@ -18,10 +23,12 @@ export class UserController extends BaseController {
         super();
     }
 
-    @httpPost('/register')
+    @httpPost('/register', validateRequest(registerUserSchema))
     async register(@request() req: Request, @response() res: Response) {
         try {
-            const user = await this.userService.register(req.body);
+            const user = await this.userService.register(
+                req.body as RegisterUserInput
+            );
             res.status(201).json({
                 id: user.id,
             });

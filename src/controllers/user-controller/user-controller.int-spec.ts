@@ -19,5 +19,20 @@ describe('UserController Integration Tests', () => {
             expect(response.status).toBe(201);
             expect(response.body).toHaveProperty('id');
         });
+
+        it('should get back 400 when password does not conform to rules', async () => {
+            const userData = {
+                email: `test${Date.now()}@example.com`,
+                unhashedPassword: 'invalid',
+                firstName: 'John',
+                lastName: 'Doe',
+            };
+
+            const response = await request(baseUrl)
+                .post('/users/register')
+                .send(userData);
+
+            expect(response.status).toBe(400);
+        });
     });
 });
