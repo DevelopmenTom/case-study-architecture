@@ -7,6 +7,7 @@ import { User } from '../../entities';
 import { PasswordManagerService } from '../../types/services/PasswordManagerService';
 import { AuthService } from '../../types/services/AuthService';
 import { UserRoles } from '../../types/enums';
+import { UserProfileDto } from '../../types/Dto/UserProfileDto';
 
 @injectable()
 export class UserServiceImpl implements UserService {
@@ -47,5 +48,19 @@ export class UserServiceImpl implements UserService {
             userId: user.id,
             role: UserRoles.USER,
         });
+    }
+
+    async getProfile(userId: string): Promise<UserProfileDto> {
+        const user = await this.userRepository.findById(userId);
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        return {
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+        };
     }
 }

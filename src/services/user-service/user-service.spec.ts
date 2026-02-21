@@ -5,6 +5,7 @@ import {
 import { UserService } from '../../types/services/UserService';
 import { DISymbols } from '../../lib';
 import { mockUserData } from '../../testHelpers/mockUserData';
+import { randomUUID } from 'crypto';
 
 describe('UserService', () => {
     let userService: UserService;
@@ -64,6 +65,31 @@ describe('UserService', () => {
             await expect(
                 userService.authenticate(rest.email, 'wrongPassword')
             ).rejects.toThrow('Invalid credentials');
+        });
+    });
+
+    describe('getProfile', () => {
+        it('should return user profile with email, firstName, and lastName', async () => {
+            const { password: unhashedPassword, ...rest } = mockUserData();
+
+            const user = await userService.register({
+                unhashedPassword,
+                ...rest,
+            });
+
+            const profile = await userService.getProfile(user.id);
+
+            expect(profile).toEqual({
+                email: rest.email,
+                firstName: rest.firstName,
+                lastName: rest.lastName,
+            });
+        });
+
+        it('should throw an error when user does not exist', async () => {
+            await expect(userService.getProfile(randomUUID())).rejects.toThrow(
+                'User not found'
+            );
         });
     });
 });
