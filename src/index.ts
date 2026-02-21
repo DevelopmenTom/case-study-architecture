@@ -13,6 +13,7 @@ import {
 // import { exampleEventHandler } from './events/handlers';
 import './controllers/status-controller/status-controller';
 import './controllers/user-controller/user-controller';
+import { errorHandler } from './middlewares/error-handler.middleware';
 
 dotenv.config();
 
@@ -37,6 +38,9 @@ dotenv.config();
         });
         app.setConfig(app => {
             app.use(json());
+        });
+        app.setErrorConfig(app => {
+            app.use(errorHandler);
         });
 
         const server = app.build();

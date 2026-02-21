@@ -25,15 +25,11 @@ export class UserController extends BaseController {
 
     @httpPost('/register', validateRequest(registerUserSchema))
     async register(@request() req: Request, @response() res: Response) {
-        try {
-            const user = await this.userService.register(
-                req.body as RegisterUserInput
-            );
-            res.status(201).json({
-                id: user.id,
-            });
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
-        }
+        const user = await this.userService.register(
+            req.body as RegisterUserInput
+        );
+        res.status(201).json({
+            id: user.id,
+        });
     }
 }
