@@ -17,9 +17,10 @@
         "strict": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "types": ["reflect-metadata", "node", "@types/jest"],
+        "skipLibCheck": true,
+        "types": ["node", "jest"],
         "typeRoots": ["node_modules/@types", "src/@types"]
     },
     "include": ["src/**/*"],
-    "exclude": ["node_modules", "**/*.test.ts"]
+    "exclude": ["node_modules", "**/*.test.ts", "node_modules/typeorm/driver/mongodb"]
 }
