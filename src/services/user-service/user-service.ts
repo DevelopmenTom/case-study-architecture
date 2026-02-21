@@ -7,7 +7,11 @@ import {
     PasswordManagerService,
     UserService,
 } from '../../types/services';
-import { RegisterUserDto, UserProfileDto } from '../../types/Dto';
+import {
+    RegisterUserDto,
+    UpdateProfileDto,
+    UserProfileDto,
+} from '../../types/Dto';
 import { UserRoles } from '../../types/enums';
 
 @injectable()
@@ -62,6 +66,22 @@ export class UserServiceImpl implements UserService {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
+        };
+    }
+
+    async updateProfile(
+        userId: string,
+        updateData: UpdateProfileDto
+    ): Promise<UserProfileDto> {
+        const updatedUser = await this.userRepository.update(
+            userId,
+            updateData
+        );
+
+        return {
+            email: updatedUser.email,
+            firstName: updatedUser.firstName,
+            lastName: updatedUser.lastName,
         };
     }
 }

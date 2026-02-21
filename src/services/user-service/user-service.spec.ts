@@ -6,6 +6,7 @@ import { DISymbols } from '../../lib';
 import { mockUserData } from '../../testHelpers/mockUserData';
 import { randomUUID } from 'crypto';
 import { UserService } from '../../types/services';
+import { User } from '../../entities';
 
 describe('UserService', () => {
     let userService: UserService;
@@ -90,6 +91,56 @@ describe('UserService', () => {
             await expect(userService.getProfile(randomUUID())).rejects.toThrow(
                 'User not found'
             );
+        });
+    });
+
+    describe('updateProfile', () => {
+        let user: User;
+
+        beforeEach(async () => {
+            const { password: unhashedPassword, ...rest } = mockUserData();
+
+            user = await userService.register({
+                unhashedPassword,
+                ...rest,
+            });
+        });
+
+        it('should update and return user profile', async () => {
+            const updatedProfile = await userService.updateProfile(user.id, {
+                firstName: 'UpdatedFirstName',
+                lastName: 'UpdatedLastName',
+            });
+
+            expect(updatedProfile).toEqual({
+                email: user.email,
+                firstName: 'UpdatedFirstName',
+                lastName: 'UpdatedLastName',
+            });
+        });
+
+        it('should update only firstName when lastName is not provided', async () => {
+            const updatedProfile = await userService.updateProfile(user.id, {
+                firstName: 'NewFirstName',
+            });
+
+            expect(updatedProfile).toEqual({
+                email: user.email,
+                firstName: 'NewFirstName',
+                lastName: user.lastName,
+            });
+        });
+
+        it('should update only lastName when firstName is not provided', async () => {
+            const updatedProfile = await userService.updateProfile(user.id, {
+                lastName: 'NewLastName',
+            });
+
+            expect(updatedProfile).toEqual({
+                email: user.email,
+                firstName: user.firstName,
+                lastName: 'NewLastName',
+            });
         });
     });
 });
