@@ -6,6 +6,8 @@ import {
 } from '../../../inversify.config';
 import { DISymbols } from '../../lib';
 import { User } from '../../entities';
+import { AuthService } from '../../types/services';
+import { UserRoles } from '../../types/enums';
 
 describe('UserController Integration Tests', () => {
     const baseUrl = 'http://localhost:9000/partner-app/api';
@@ -127,8 +129,18 @@ describe('UserController Integration Tests', () => {
                 lastName: 'User',
             });
 
+            const authService = diContainer.get<AuthService>(
+                DISymbols.AuthService
+            );
+
+            const token = authService.generateToken({
+                userId: savedUser.id,
+                role: UserRoles.USER,
+            });
+
             const response = await request(baseUrl)
                 .get('/users/profile')
+                .set('Authorization', `Bearer ${token}`)
                 .send({ userId: savedUser.id });
 
             expect(response.status).toBe(200);
@@ -137,6 +149,57 @@ describe('UserController Integration Tests', () => {
                 firstName: savedUser.firstName,
                 lastName: savedUser.lastName,
             });
+        });
+
+        it('should return 401 when no auth header is provided', async () => {
+            const savedUser = await dataSource.getRepository(User).save({
+                email: `profile-test-${Date.now()}@example.com`,
+                password: 'hashedPassword123',
+                firstName: 'Profile',
+                lastName: 'User',
+            });
+
+            const response = await request(baseUrl)
+                .get('/users/profile')
+                .send({ userId: savedUser.id });
+
+            expect(response.status).toBe(401);
+            expect(response.body.error).toBe('Unauthorized');
+        });
+
+        it('should return 401 with Unauthorized message when a user tries to get profile of another user', async () => {
+            const userData1 = {
+                email: `user1-${Date.now()}@example.com`,
+                unhashedPassword: 'Password123',
+                firstName: 'User',
+                lastName: 'One',
+            };
+
+            await request(baseUrl).post('/users/register').send(userData1);
+
+            const loginResponse1 = await request(baseUrl)
+                .post('/users/login')
+                .send({
+                    email: userData1.email,
+                    password: userData1.unhashedPassword,
+                });
+
+            const token1 = loginResponse1.body.token;
+
+            const savedUser2 = await dataSource.getRepository(User).save({
+                email: `user2-${Date.now()}@example.com`,
+                password: 'hashedPassword123',
+                firstName: 'User',
+                lastName: 'Two',
+            });
+
+            const response = await request(baseUrl)
+                .get('/users/profile')
+                .set('Authorization', `Bearer ${token1}`)
+                .send({ userId: savedUser2.id });
+
+            expect(response.status).toBe(401);
+            expect(response.body.error).toBe('Unauthorized');
         });
     });
 });

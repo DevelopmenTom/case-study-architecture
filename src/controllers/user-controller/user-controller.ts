@@ -11,6 +11,7 @@ import {
 import { BaseController, DISymbols } from '../../lib';
 import { UserService } from '../../types/services';
 import { validateRequest } from '../../middlewares/validate-request.middleware';
+import { authenticateRequest } from '../../middlewares/auth.middleware';
 import {
     registerUserSchema,
     RegisterUserInput,
@@ -51,7 +52,11 @@ export class UserController extends BaseController {
         });
     }
 
-    @httpGet('/profile', validateRequest(getProfileSchema))
+    @httpGet(
+        '/profile',
+        validateRequest(getProfileSchema),
+        authenticateRequest()
+    )
     async getProfile(@request() req: Request, @response() res: Response) {
         const { userId } = req.body as GetProfileInput;
         const profile = await this.userService.getProfile(userId);
