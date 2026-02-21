@@ -1,11 +1,7 @@
 import { scrypt, randomBytes } from 'crypto';
 import { injectable } from 'inversify';
 import { promisify } from 'util';
-
-export interface PasswordManagerService {
-    toHash(password: string): Promise<string>;
-    compare(storedPassword: string, suppliedPassword: string): Promise<boolean>;
-}
+import { PasswordManagerService } from '../../types/services/PasswordManagerService';
 
 const scryptAsync = promisify(scrypt);
 

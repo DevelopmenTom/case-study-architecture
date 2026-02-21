@@ -4,7 +4,6 @@
 //     // Services
 //     ExampleService: Symbol.for('ExampleService'),
 //     UserService: Symbol.for('UserService'),
-//     PasswordManagerService: Symbol.for('PasswordManagerService'),
 // };
 
 export const DISymbols = {
