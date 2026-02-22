@@ -1,146 +1,268 @@
 import { randomUUID } from 'crypto';
 
-import {
-    diContainer,
-    initializeDataSourceInContainer,
-} from '../../../inversify.config';
 import { User } from '../../entities';
-import { DISymbols } from '../../lib';
-import { mockUserData } from '../../testHelpers/mockUserData';
-import { UserService } from '../../types/services';
+import { RegisterUserDto, UpdateProfileDto } from '../../types/Dto';
+import { UserRoles } from '../../types/enums';
+import { UserRepository } from '../../types/repositories';
+import { AuthService, PasswordManagerService } from '../../types/services';
 
-describe('UserService', () => {
-    let userService: UserService;
+import { UserServiceImpl } from './user-service';
 
-    beforeAll(async () => {
-        await initializeDataSourceInContainer();
-        userService = diContainer.get<UserService>(DISymbols.UserService);
+describe('UserService (unit tests)', () => {
+    let userService: UserServiceImpl;
+    let mockUserRepository: jest.Mocked<UserRepository>;
+    let mockPasswordManagerService: jest.Mocked<PasswordManagerService>;
+    let mockAuthService: jest.Mocked<AuthService>;
+
+    beforeEach(() => {
+        mockUserRepository = {
+            findByEmail: jest.fn(),
+            findById: jest.fn(),
+            create: jest.fn(),
+            update: jest.fn(),
+        } as any;
+
+        mockPasswordManagerService = {
+            toHash: jest.fn(),
+            compare: jest.fn(),
+        } as any;
+
+        mockAuthService = {
+            generateToken: jest.fn(),
+            verify: jest.fn(),
+        } as any;
+
+        userService = new UserServiceImpl(
+            mockUserRepository,
+            mockPasswordManagerService,
+            mockAuthService
+        );
     });
 
     describe('register', () => {
-        it('should return a new user with hashed password that is unequal to user input (unhashedPassword)', async () => {
-            const { password: unhashedPassword, ...rest } = mockUserData();
+        it('should hash password and create user', async () => {
+            const registerDto: RegisterUserDto = {
+                email: 'test@example.com',
+                unhashedPassword: 'plainPassword123',
+                firstName: 'John',
+                lastName: 'Doe',
+            };
 
-            const res = await userService.register({
-                unhashedPassword,
-                ...rest,
+            const hashedPassword = 'hashedPassword123';
+            const createdUser = {
+                id: randomUUID(),
+                email: registerDto.email,
+                password: hashedPassword,
+                firstName: registerDto.firstName,
+                lastName: registerDto.lastName,
+            } as User;
+
+            mockPasswordManagerService.toHash.mockResolvedValue(hashedPassword);
+            mockUserRepository.create.mockResolvedValue(createdUser);
+
+            const result = await userService.register(registerDto);
+
+            expect(mockPasswordManagerService.toHash).toHaveBeenCalledWith(
+                registerDto.unhashedPassword
+            );
+            expect(mockUserRepository.create).toHaveBeenCalledWith({
+                email: registerDto.email,
+                password: hashedPassword,
+                firstName: registerDto.firstName,
+                lastName: registerDto.lastName,
             });
-
-            expect(res.password).not.toEqual(unhashedPassword);
+            expect(result).toEqual(createdUser);
         });
     });
 
     describe('authenticate', () => {
-        it('should return a JWT token when credentials are valid', async () => {
-            const { password: unhashedPassword, ...rest } = mockUserData();
+        it('should return JWT token when credentials are valid', async () => {
+            const email = 'test@example.com';
+            const password = 'plainPassword';
+            const mockUser = {
+                id: randomUUID(),
+                email,
+                password: 'hashedPassword',
+                firstName: 'John',
+                lastName: 'Doe',
+            } as User;
+            const mockToken = 'jwt-token-123';
 
-            await userService.register({
-                unhashedPassword,
-                ...rest,
+            mockUserRepository.findByEmail.mockResolvedValue(mockUser);
+            mockPasswordManagerService.compare.mockResolvedValue(true);
+            mockAuthService.generateToken.mockReturnValue(mockToken);
+
+            const result = await userService.authenticate(email, password);
+
+            expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(email);
+            expect(mockPasswordManagerService.compare).toHaveBeenCalledWith({
+                storedPassword: mockUser.password,
+                suppliedPassword: password,
             });
-
-            const token = await userService.authenticate(
-                rest.email,
-                unhashedPassword
-            );
-
-            expect(typeof token).toBe('string');
+            expect(mockAuthService.generateToken).toHaveBeenCalledWith({
+                userId: mockUser.id,
+                role: UserRoles.USER,
+            });
+            expect(result).toBe(mockToken);
         });
 
-        it('should throw an error when email does not exist', async () => {
+        it('should throw error when email does not exist', async () => {
+            mockUserRepository.findByEmail.mockResolvedValue(null);
+
             await expect(
-                userService.authenticate(
-                    'nonexistent@example.com',
-                    'anyPassword'
-                )
+                userService.authenticate('nonexistent@example.com', 'password')
             ).rejects.toThrow('Invalid credentials');
+
+            expect(mockPasswordManagerService.compare).not.toHaveBeenCalled();
+            expect(mockAuthService.generateToken).not.toHaveBeenCalled();
         });
 
-        it('should throw an error when password is incorrect', async () => {
-            const { password: unhashedPassword, ...rest } = mockUserData();
+        it('should throw error when password is incorrect', async () => {
+            const mockUser = {
+                id: randomUUID(),
+                email: 'test@example.com',
+                password: 'hashedPassword',
+            } as User;
 
-            await userService.register({
-                unhashedPassword,
-                ...rest,
-            });
+            mockUserRepository.findByEmail.mockResolvedValue(mockUser);
+            mockPasswordManagerService.compare.mockResolvedValue(false);
 
             await expect(
-                userService.authenticate(rest.email, 'wrongPassword')
+                userService.authenticate('test@example.com', 'wrongPassword')
             ).rejects.toThrow('Invalid credentials');
+
+            expect(mockAuthService.generateToken).not.toHaveBeenCalled();
+        });
+
+        it('should throw error with statusCode 400 for invalid credentials', async () => {
+            mockUserRepository.findByEmail.mockResolvedValue(null);
+
+            try {
+                await userService.authenticate('test@example.com', 'password');
+                fail('Expected error to be thrown');
+            } catch (error: any) {
+                expect(error.message).toBe('Invalid credentials');
+                expect(error.statusCode).toBe(400);
+            }
         });
     });
 
     describe('getProfile', () => {
-        it('should return user profile with email, firstName, and lastName', async () => {
-            const { password: unhashedPassword, ...rest } = mockUserData();
+        it('should return user profile when user exists', async () => {
+            const userId = randomUUID();
+            const mockUser = {
+                id: userId,
+                email: 'test@example.com',
+                firstName: 'John',
+                lastName: 'Doe',
+                password: 'hashedPassword',
+            } as User;
 
-            const user = await userService.register({
-                unhashedPassword,
-                ...rest,
-            });
+            mockUserRepository.findById.mockResolvedValue(mockUser);
 
-            const profile = await userService.getProfile(user.id);
+            const result = await userService.getProfile(userId);
 
-            expect(profile).toEqual({
-                email: rest.email,
-                firstName: rest.firstName,
-                lastName: rest.lastName,
+            expect(mockUserRepository.findById).toHaveBeenCalledWith(userId);
+            expect(result).toEqual({
+                email: mockUser.email,
+                firstName: mockUser.firstName,
+                lastName: mockUser.lastName,
             });
         });
 
-        it('should throw an error when user does not exist', async () => {
-            await expect(userService.getProfile(randomUUID())).rejects.toThrow(
+        it('should throw error when user does not exist', async () => {
+            const userId = randomUUID();
+            mockUserRepository.findById.mockResolvedValue(null);
+
+            await expect(userService.getProfile(userId)).rejects.toThrow(
                 'User not found'
             );
         });
     });
 
     describe('updateProfile', () => {
-        let user: User;
-
-        beforeEach(async () => {
-            const { password: unhashedPassword, ...rest } = mockUserData();
-
-            user = await userService.register({
-                unhashedPassword,
-                ...rest,
-            });
-        });
-
         it('should update and return user profile', async () => {
-            const updatedProfile = await userService.updateProfile(user.id, {
+            const userId = randomUUID();
+            const updateDto: UpdateProfileDto = {
                 firstName: 'UpdatedFirstName',
                 lastName: 'UpdatedLastName',
-            });
+            };
+            const updatedUser = {
+                id: userId,
+                email: 'test@example.com',
+                firstName: updateDto.firstName,
+                lastName: updateDto.lastName,
+                password: 'hashedPassword',
+            } as User;
 
-            expect(updatedProfile).toEqual({
-                email: user.email,
-                firstName: 'UpdatedFirstName',
-                lastName: 'UpdatedLastName',
+            mockUserRepository.update.mockResolvedValue(updatedUser);
+
+            const result = await userService.updateProfile(userId, updateDto);
+
+            expect(mockUserRepository.update).toHaveBeenCalledWith(
+                userId,
+                updateDto
+            );
+            expect(result).toEqual({
+                email: updatedUser.email,
+                firstName: updatedUser.firstName,
+                lastName: updatedUser.lastName,
             });
         });
 
         it('should update only firstName when lastName is not provided', async () => {
-            const updatedProfile = await userService.updateProfile(user.id, {
+            const userId = randomUUID();
+            const updateDto: UpdateProfileDto = {
                 firstName: 'NewFirstName',
-            });
+            };
+            const updatedUser = {
+                id: userId,
+                email: 'test@example.com',
+                firstName: updateDto.firstName,
+                lastName: 'OriginalLastName',
+                password: 'hashedPassword',
+            } as User;
 
-            expect(updatedProfile).toEqual({
-                email: user.email,
-                firstName: 'NewFirstName',
-                lastName: user.lastName,
+            mockUserRepository.update.mockResolvedValue(updatedUser);
+
+            const result = await userService.updateProfile(userId, updateDto);
+
+            expect(mockUserRepository.update).toHaveBeenCalledWith(
+                userId,
+                updateDto
+            );
+            expect(result).toEqual({
+                email: updatedUser.email,
+                firstName: updatedUser.firstName,
+                lastName: updatedUser.lastName,
             });
         });
 
         it('should update only lastName when firstName is not provided', async () => {
-            const updatedProfile = await userService.updateProfile(user.id, {
+            const userId = randomUUID();
+            const updateDto: UpdateProfileDto = {
                 lastName: 'NewLastName',
-            });
+            };
+            const updatedUser = {
+                id: userId,
+                email: 'test@example.com',
+                firstName: 'OriginalFirstName',
+                lastName: updateDto.lastName,
+                password: 'hashedPassword',
+            } as User;
 
-            expect(updatedProfile).toEqual({
-                email: user.email,
-                firstName: user.firstName,
-                lastName: 'NewLastName',
+            mockUserRepository.update.mockResolvedValue(updatedUser);
+
+            const result = await userService.updateProfile(userId, updateDto);
+
+            expect(mockUserRepository.update).toHaveBeenCalledWith(
+                userId,
+                updateDto
+            );
+            expect(result).toEqual({
+                email: updatedUser.email,
+                firstName: updatedUser.firstName,
+                lastName: updatedUser.lastName,
             });
         });
     });
