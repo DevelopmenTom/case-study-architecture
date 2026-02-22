@@ -201,8 +201,8 @@ describe('UserController Integration Tests', () => {
         });
 
         it('should return 401 with Unauthorized message when a user tries to get profile of another user', async () => {
-            const userData1 = await dataSource.getRepository(User).save({
-                email: `profile-test-${Date.now()}@example.com`,
+            const savedUser1 = await dataSource.getRepository(User).save({
+                email: `user1-get-profile-${Date.now()}@example.com`,
                 password: 'hashedPassword123',
                 firstName: 'Profile',
                 lastName: 'User',
@@ -213,11 +213,11 @@ describe('UserController Integration Tests', () => {
             );
 
             const token1 = authService.generateToken({
-                userId: userData1.id,
+                userId: savedUser1.id,
             });
 
             const savedUser2 = await dataSource.getRepository(User).save({
-                email: `user2-${Date.now()}@example.com`,
+                email: `user2-get-profile-${Date.now()}@example.com`,
                 password: 'hashedPassword123',
                 firstName: 'User',
                 lastName: 'Two',
@@ -286,8 +286,8 @@ describe('UserController Integration Tests', () => {
         });
 
         it('should return 401 with Unauthorized message when a user tries to update profile of another user', async () => {
-            const userData1 = await dataSource.getRepository(User).save({
-                email: `user2-update-${Date.now()}@example.com`,
+            const savedUser1 = await dataSource.getRepository(User).save({
+                email: `user1-update-${Date.now()}@example.com`,
                 password: 'hashedPassword123',
                 firstName: 'Profile',
                 lastName: 'User',
@@ -298,7 +298,7 @@ describe('UserController Integration Tests', () => {
             );
 
             const token1 = authService.generateToken({
-                userId: userData1.id,
+                userId: savedUser1.id,
             });
 
             const savedUser2 = await dataSource.getRepository(User).save({
