@@ -1,23 +1,36 @@
-import { SSMClient, GetParametersCommand } from '@aws-sdk/client-ssm';
+import {
+    SSMClient,
+    GetParametersCommand,
+    GetParametersCommandOutput,
+} from '@aws-sdk/client-ssm';
 import { DataSource } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
 const getParametersFromSSM = async () => {
-    const ssmClient = new SSMClient({ region: 'eu-central-1' });
+    let response: GetParametersCommandOutput;
 
-    const input = {
-        Names: [
-            'k8s_rds_host',
-            'k8s_rds_db_name',
-            'k8s_rds_master_username',
-            'k8s_rds_master_password',
-        ],
-        WithDecryption: true,
-    };
+    try {
+        const ssmClient = new SSMClient({ region: 'eu-central-1' });
 
-    const command = new GetParametersCommand(input);
+        const input = {
+            Names: [
+                'k8s_rds_host',
+                'k8s_rds_db_name',
+                'k8s_rds_master_username',
+                'k8s_rds_master_password',
+            ],
+            WithDecryption: true,
+        };
 
-    const response = await ssmClient.send(command);
+        const command = new GetParametersCommand(input);
+
+        response = await ssmClient.send(command);
+    } catch (error) {
+        console.error(error);
+        throw new Error(
+            'could not fetch parameters from SSM, see previous log for error details'
+        );
+    }
 
     const envVars = {};
 
