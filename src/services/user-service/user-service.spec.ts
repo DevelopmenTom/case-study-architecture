@@ -2,7 +2,6 @@ import { randomUUID } from 'crypto';
 
 import { User } from '../../entities';
 import { RegisterUserDto, UpdateProfileDto } from '../../types/Dto';
-import { UserRoles } from '../../types/enums';
 import { UserRepository } from '../../types/repositories';
 import { AuthService, PasswordManagerService } from '../../types/services';
 
@@ -101,7 +100,6 @@ describe('UserService (unit tests)', () => {
             });
             expect(mockAuthService.generateToken).toHaveBeenCalledWith({
                 userId: mockUser.id,
-                role: UserRoles.USER,
             });
             expect(result).toBe(mockToken);
         });

@@ -7,7 +7,6 @@ import {
     UpdateProfileDto,
     UserProfileDto,
 } from '../../types/Dto';
-import { UserRoles } from '../../types/enums';
 import { HttpError } from '../../types/errors';
 import { UserRepository } from '../../types/repositories';
 import {
@@ -53,7 +52,6 @@ export class UserServiceImpl implements UserService {
 
         return this.authService.generateToken({
             userId: user.id,
-            role: UserRoles.USER,
         });
     }
 

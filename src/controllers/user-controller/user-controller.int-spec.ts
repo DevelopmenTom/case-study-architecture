@@ -7,7 +7,6 @@ import {
 } from '../../../inversify.config';
 import { User } from '../../entities';
 import { DISymbols } from '../../lib';
-import { UserRoles } from '../../types/enums';
 import { AuthService } from '../../types/services';
 
 describe('UserController Integration Tests', () => {
@@ -136,7 +135,6 @@ describe('UserController Integration Tests', () => {
 
             const token = authService.generateToken({
                 userId: savedUser.id,
-                role: UserRoles.USER,
             });
 
             const response = await request(baseUrl)
@@ -182,7 +180,6 @@ describe('UserController Integration Tests', () => {
 
             const token1 = authService.generateToken({
                 userId: userData1.id,
-                role: UserRoles.USER,
             });
 
             const savedUser2 = await dataSource.getRepository(User).save({
@@ -217,7 +214,6 @@ describe('UserController Integration Tests', () => {
 
             const token = authService.generateToken({
                 userId: savedUser.id,
-                role: UserRoles.USER,
             });
 
             const response = await request(baseUrl)
@@ -234,40 +230,6 @@ describe('UserController Integration Tests', () => {
                 email: savedUser.email,
                 firstName: 'Updated',
                 lastName: 'User',
-            });
-        });
-
-        it('should save a user to DB, then update their profile as ADMIN', async () => {
-            const savedUser = await dataSource.getRepository(User).save({
-                email: `update-profile-admin-test-${Date.now()}@example.com`,
-                password: 'hashedPassword123',
-                firstName: 'Original',
-                lastName: 'Name',
-            });
-
-            const authService = diContainer.get<AuthService>(
-                DISymbols.AuthService
-            );
-
-            const adminToken = authService.generateToken({
-                userId: crypto.randomUUID(),
-                role: UserRoles.ADMIN,
-            });
-
-            const response = await request(baseUrl)
-                .put('/users/profile')
-                .set('Authorization', `Bearer ${adminToken}`)
-                .send({
-                    userId: savedUser.id,
-                    firstName: 'AdminUpdated',
-                    lastName: 'AdminUser',
-                });
-
-            expect(response.status).toBe(200);
-            expect(response.body).toEqual({
-                email: savedUser.email,
-                firstName: 'AdminUpdated',
-                lastName: 'AdminUser',
             });
         });
 
@@ -303,7 +265,6 @@ describe('UserController Integration Tests', () => {
 
             const token1 = authService.generateToken({
                 userId: userData1.id,
-                role: UserRoles.USER,
             });
 
             const savedUser2 = await dataSource.getRepository(User).save({

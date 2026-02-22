@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 
-import { UserRoles } from '../types/enums';
 import { ITokenPayload } from '../types/payloads';
 
 import { authenticateRequest } from './auth.middleware';
@@ -69,25 +68,8 @@ describe('authenticateRequest', () => {
     });
 
     describe('attaching auth to req.auth', () => {
-        it('should attach role and userId to req.auth for admin user', () => {
-            const payload = { userId: 'admin-123', role: UserRoles.ADMIN };
-            const token = generateToken(payload);
-
-            mockReq.headers = { authorization: `Bearer ${token}` };
-
-            const middleware = authenticateRequest();
-            middleware(mockReq as Request, mockRes as Response, mockNext);
-
-            expect(mockReq.auth).toEqual({
-                role: UserRoles.ADMIN,
-                userId: 'admin-123',
-            });
-
-            expect(mockNext).toHaveBeenCalled();
-        });
-
-        it('should attach role and userId to req.auth for regular user', () => {
-            const payload = { userId: 'user-456', role: UserRoles.USER };
+        it('should attach role and userId to req.auth', () => {
+            const payload = { userId: 'user-456' };
             const token = generateToken(payload);
 
             mockReq.headers = { authorization: `Bearer ${token}` };
@@ -97,14 +79,13 @@ describe('authenticateRequest', () => {
             middleware(mockReq as Request, mockRes as Response, mockNext);
 
             expect(mockReq.auth).toEqual({
-                role: UserRoles.USER,
                 userId: 'user-456',
             });
             expect(mockNext).toHaveBeenCalled();
         });
 
-        it('should attach auth before checking authorization for regular users', () => {
-            const payload = { userId: 'user-789', role: UserRoles.USER };
+        it('should attach auth before checking authorization ', () => {
+            const payload = { userId: 'user-789' };
             const token = generateToken(payload);
 
             mockReq.headers = { authorization: `Bearer ${token}` };
@@ -114,7 +95,6 @@ describe('authenticateRequest', () => {
             middleware(mockReq as Request, mockRes as Response, mockNext);
 
             expect(mockReq.auth).toEqual({
-                role: UserRoles.USER,
                 userId: 'user-789',
             });
             expect(statusMock).toHaveBeenCalledWith(401);
@@ -122,24 +102,9 @@ describe('authenticateRequest', () => {
         });
     });
 
-    describe('admin authorization', () => {
-        it('should allow admin users to proceed', () => {
-            const payload = { userId: 'admin-123', role: UserRoles.ADMIN };
-            const token = generateToken(payload);
-
-            mockReq.headers = { authorization: `Bearer ${token}` };
-
-            const middleware = authenticateRequest();
-            middleware(mockReq as Request, mockRes as Response, mockNext);
-
-            expect(mockNext).toHaveBeenCalled();
-            expect(statusMock).not.toHaveBeenCalled();
-        });
-    });
-
     describe('user authorization', () => {
         it('should allow user to proceed if userId matches token', () => {
-            const payload = { userId: 'user-123', role: UserRoles.USER };
+            const payload = { userId: 'user-123' };
             const token = generateToken(payload);
 
             mockReq.headers = { authorization: `Bearer ${token}` };
@@ -153,7 +118,7 @@ describe('authenticateRequest', () => {
         });
 
         it('should return 401 if userId does not match token', () => {
-            const payload = { userId: 'user-123', role: UserRoles.USER };
+            const payload = { userId: 'user-123' };
             const token = generateToken(payload);
 
             mockReq.headers = { authorization: `Bearer ${token}` };
@@ -170,7 +135,7 @@ describe('authenticateRequest', () => {
 
     describe('Bearer token format', () => {
         it('should handle token with Bearer prefix', () => {
-            const payload = { userId: 'admin-123', role: UserRoles.ADMIN };
+            const payload = { userId: 'user-123' };
             const token = generateToken(payload);
 
             mockReq.headers = { authorization: `Bearer ${token}` };
@@ -182,7 +147,7 @@ describe('authenticateRequest', () => {
         });
 
         it('should handle token without Bearer prefix', () => {
-            const payload = { userId: 'admin-123', role: UserRoles.ADMIN };
+            const payload = { userId: 'user-123' };
             const token = generateToken(payload);
 
             mockReq.headers = { authorization: token };

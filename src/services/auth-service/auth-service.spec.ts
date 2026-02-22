@@ -1,6 +1,5 @@
 import * as jwt from 'jsonwebtoken';
 
-import { UserRoles } from '../../types/enums';
 import { ITokenPayload } from '../../types/payloads';
 
 import { AuthServiceImpl } from './auth-service';
@@ -20,7 +19,6 @@ describe('AuthService (unit tests)', () => {
         it('should call jwt.sign with correct parameters', () => {
             const payload: ITokenPayload = {
                 userId: 'user-123',
-                role: UserRoles.USER,
             };
             const mockToken = 'mock-jwt-token';
             const mockSecret = 'test-secret';
@@ -44,7 +42,6 @@ describe('AuthService (unit tests)', () => {
 
             const payload: ITokenPayload = {
                 userId: 'user-789',
-                role: UserRoles.USER,
             };
 
             expect(() => authService.generateToken(payload)).toThrow(
@@ -55,7 +52,6 @@ describe('AuthService (unit tests)', () => {
         it('should use JWT_EXPIRES_IN from environment', () => {
             const payload: ITokenPayload = {
                 userId: 'user-456',
-                role: UserRoles.ADMIN,
             };
             const mockExpiresIn = '2d';
 
@@ -78,7 +74,6 @@ describe('AuthService (unit tests)', () => {
             const mockSecret = 'test-secret';
             const mockPayload: ITokenPayload = {
                 userId: 'user-123',
-                role: UserRoles.USER,
             };
 
             process.env.JWT_SECRET = mockSecret;
@@ -104,7 +99,6 @@ describe('AuthService (unit tests)', () => {
             const token = 'valid-token';
             const mockPayload: ITokenPayload = {
                 userId: 'user-999',
-                role: UserRoles.ADMIN,
             };
 
             process.env.JWT_SECRET = 'secret';
