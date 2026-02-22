@@ -9,7 +9,7 @@
     "lint": "eslint . --ext .ts --fix",
     "dev:build": "tsc -w",
     "dev:start": "nodemon ./dist/src/index.js",
-    "dev": "concurrently npm:dev:*",
+    "dev": "concurrently 'yarn run dev:build' 'yarn run dev:start'",
     "dev:docker": "tsc && nodemon",
     "build": "rimraf ./dist && tsc",
     "start": "node ./dist/src/index.js",
