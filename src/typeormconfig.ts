@@ -3,35 +3,40 @@ import { DataSource } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
 const getParametersFromSSM = async () => {
-    try {
-        const ssmClient = new SSMClient({ region: 'eu-central-1' });
+    const ssmClient = new SSMClient({ region: 'eu-central-1' });
 
-        const input = {
-            Names: [
-                'k8s_rds_host',
-                'k8s_rds_db_name',
-                'k8s_rds_master_username',
-                'k8s_rds_master_password',
-            ],
-            WithDecryption: true,
-        };
+    const input = {
+        Names: [
+            'k8s_rds_host',
+            'k8s_rds_db_name',
+            'k8s_rds_master_username',
+            'k8s_rds_master_password',
+        ],
+        WithDecryption: true,
+    };
 
-        const command = new GetParametersCommand(input);
+    const command = new GetParametersCommand(input);
 
-        const response = await ssmClient.send(command);
+    const response = await ssmClient.send(command);
 
-        const envVars: any = {};
+    const envVars = {};
 
-        if (response.Parameters) {
-            for (const p of response.Parameters) {
-                envVars[p.Name!] = p.Value;
-            }
-        }
-
-        return envVars;
-    } catch (error: any) {
-        console.log('Failed to read parameters from SSM with error: ', error);
+    if (!response.Parameters) {
+        throw new Error(
+            'no parameters found on SSM. cannot initialize DB connection'
+        );
     }
+
+    for (const p of response.Parameters) {
+        if (!p.Value) {
+            throw new Error(
+                `param ${p.Name} had no value on SSM. cannot initialize DB connection`
+            );
+        }
+        envVars[p.Name!] = p.Value;
+    }
+
+    return envVars;
 };
 
 const getDBConfig = async () => {
