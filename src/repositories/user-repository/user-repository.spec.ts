@@ -1,61 +1,86 @@
 import { randomUUID } from 'crypto';
 
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
-import {
-    diContainer,
-    initializeDataSourceInContainer,
-} from '../../../inversify.config';
 import { User } from '../../entities';
-import { DISymbols } from '../../lib';
-import { mockUserData } from '../../testHelpers/mockUserData';
 import { CreateUserDto, UpdateUserDto } from '../../types/Dto';
-import { UserRepository } from '../../types/repositories';
 
-describe('UserRepository', () => {
-    let dataSource: DataSource;
-    let userRepository: UserRepository;
-    let savedUser: User;
+import { UserRepositoryImpl } from './user-repository';
 
-    beforeAll(async () => {
-        await initializeDataSourceInContainer();
-        dataSource = diContainer.get<DataSource>(DISymbols.DB);
-        userRepository = diContainer.get<UserRepository>(
-            DISymbols.UserRepository
-        );
+describe('UserRepository (unit tests)', () => {
+    let userRepository: UserRepositoryImpl;
+    let mockRepository: jest.Mocked<Repository<User>>;
+    let mockDataSource: jest.Mocked<DataSource>;
+
+    beforeEach(() => {
+        mockRepository = {
+            findOne: jest.fn(),
+            create: jest.fn(),
+            save: jest.fn(),
+            update: jest.fn(),
+        } as any;
+
+        mockDataSource = {
+            getRepository: jest.fn().mockReturnValue(mockRepository),
+        } as any;
+
+        userRepository = new UserRepositoryImpl(mockDataSource);
     });
 
     describe('findByEmail', () => {
-        it('should return correct User ID when found by email', async () => {
-            savedUser = await dataSource
-                .getRepository(User)
-                .save(mockUserData());
+        it('should call repository.findOne with correct parameters', async () => {
+            const email = 'test@example.com';
+            const mockUser = {
+                id: randomUUID(),
+                email,
+                firstName: 'John',
+                lastName: 'Doe',
+            } as User;
 
-            const result = await userRepository.findByEmail(savedUser.email);
+            mockRepository.findOne.mockResolvedValue(mockUser);
 
-            expect(result!.id).toEqual(savedUser.id);
+            const result = await userRepository.findByEmail(email);
+
+            expect(mockRepository.findOne).toHaveBeenCalledWith({
+                where: { email },
+            });
+            expect(result).toEqual(mockUser);
         });
 
-        it('should return null when user not found by email', async () => {
-            const nonExistentEmail = `test-non-existent-${Date.now()}@example.com`;
-            const result = await userRepository.findByEmail(nonExistentEmail);
+        it('should return null when user not found', async () => {
+            mockRepository.findOne.mockResolvedValue(null);
+
+            const result = await userRepository.findByEmail(
+                'nonexistent@example.com'
+            );
 
             expect(result).toBeNull();
         });
     });
 
     describe('findById', () => {
-        it('should return correct email when found by id', async () => {
-            savedUser = await dataSource
-                .getRepository(User)
-                .save(mockUserData());
+        it('should call repository.findOne with correct parameters', async () => {
+            const id = randomUUID();
+            const mockUser = {
+                id,
+                email: 'test@example.com',
+                firstName: 'John',
+                lastName: 'Doe',
+            } as User;
 
-            const result = await userRepository.findById(savedUser.id);
+            mockRepository.findOne.mockResolvedValue(mockUser);
 
-            expect(result!.email).toEqual(savedUser.email);
+            const result = await userRepository.findById(id);
+
+            expect(mockRepository.findOne).toHaveBeenCalledWith({
+                where: { id },
+            });
+            expect(result).toEqual(mockUser);
         });
 
-        it('should return null when user not found by id', async () => {
+        it('should return null when user not found', async () => {
+            mockRepository.findOne.mockResolvedValue(null);
+
             const result = await userRepository.findById(randomUUID());
 
             expect(result).toBeNull();
@@ -63,38 +88,71 @@ describe('UserRepository', () => {
     });
 
     describe('create', () => {
-        it('should return id of the created user', async () => {
+        it('should create and save a new user', async () => {
             const createUserDto: CreateUserDto = {
-                email: `newuser-${Date.now()}@example.com`,
+                email: 'newuser@example.com',
                 password: 'hashedPassword123',
                 firstName: 'Jane',
                 lastName: 'Smith',
             };
 
+            const mockUser = {
+                id: randomUUID(),
+                ...createUserDto,
+            } as User;
+
+            mockRepository.create.mockReturnValue(mockUser);
+            mockRepository.save.mockResolvedValue(mockUser);
+
             const result = await userRepository.create(createUserDto);
 
-            expect(result.id).toBeDefined();
+            expect(mockRepository.create).toHaveBeenCalledWith(createUserDto);
+            expect(mockRepository.save).toHaveBeenCalledWith(mockUser);
+            expect(result).toEqual(mockUser);
         });
     });
 
     describe('update', () => {
-        it('should update user first and last name', async () => {
-            savedUser = await dataSource
-                .getRepository(User)
-                .save(mockUserData());
-
+        it('should update user and return updated entity', async () => {
+            const userId = randomUUID();
             const updateUserDto: UpdateUserDto = {
                 firstName: 'UpdatedFirstName',
                 lastName: 'UpdatedLastName',
             };
 
-            await userRepository.update(savedUser.id, updateUserDto);
+            const updatedUser = {
+                id: userId,
+                email: 'test@example.com',
+                ...updateUserDto,
+            } as User;
 
-            const updatedUser = await userRepository.findById(savedUser.id);
+            mockRepository.update.mockResolvedValue(undefined as any);
+            mockRepository.findOne.mockResolvedValue(updatedUser);
 
-            expect(
-                `${updatedUser?.firstName} ${updatedUser?.lastName}`
-            ).toEqual(`${updateUserDto.firstName} ${updateUserDto.lastName}`);
+            const result = await userRepository.update(userId, updateUserDto);
+
+            expect(mockRepository.update).toHaveBeenCalledWith(
+                userId,
+                updateUserDto
+            );
+            expect(mockRepository.findOne).toHaveBeenCalledWith({
+                where: { id: userId },
+            });
+            expect(result).toEqual(updatedUser);
+        });
+
+        it('should throw error when user not found after update', async () => {
+            const userId = randomUUID();
+            const updateUserDto: UpdateUserDto = {
+                firstName: 'UpdatedFirstName',
+            };
+
+            mockRepository.update.mockResolvedValue(undefined as any);
+            mockRepository.findOne.mockResolvedValue(null);
+
+            await expect(
+                userRepository.update(userId, updateUserDto)
+            ).rejects.toThrow('User not found after update');
         });
     });
 });
