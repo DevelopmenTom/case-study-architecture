@@ -8,6 +8,7 @@ import {
     UserProfileDto,
 } from '../../types/Dto';
 import { UserRoles } from '../../types/enums';
+import { HttpError } from '../../types/errors';
 import { UserRepository } from '../../types/repositories';
 import {
     AuthService,
@@ -38,9 +39,7 @@ export class UserServiceImpl implements UserService {
         const user = await this.userRepository.findByEmail(email);
 
         if (!user) {
-            const error = new Error('Invalid credentials') as any;
-            error.statusCode = 400;
-            throw error;
+            throw new HttpError('Invalid credentials', 400);
         }
 
         const isPasswordValid = await this.passwordManagerService.compare({
@@ -49,9 +48,7 @@ export class UserServiceImpl implements UserService {
         });
 
         if (!isPasswordValid) {
-            const error = new Error('Invalid credentials') as any;
-            error.statusCode = 400;
-            throw error;
+            throw new HttpError('Invalid credentials', 400);
         }
 
         return this.authService.generateToken({
@@ -64,7 +61,7 @@ export class UserServiceImpl implements UserService {
         const user = await this.userRepository.findById(userId);
 
         if (!user) {
-            throw new Error('User not found');
+            throw new HttpError('User not found', 404);
         }
 
         return {
