@@ -53,9 +53,21 @@ const getDBConfig = async () => {
         };
     }
 
+    const getPortFromEnv = DATABASE_PORT => {
+        const parsedEnvVar = parseInt(DATABASE_PORT);
+
+        if (Number.isNaN(parsedEnvVar)) {
+            throw new Error(
+                'DATABASE_PORT is not a number, will not be able to connect to DB'
+            );
+        }
+
+        return parsedEnvVar;
+    };
+
     return {
         host: process.env.DATABASE_HOST,
-        port: parseInt(process.env.DATABASE_PORT || '5433'),
+        port: getPortFromEnv(process.env.DATABASE_PORT),
         username: process.env.DATABASE_USER,
         password: process.env.DATABASE_PASSWORD,
         database: process.env.DATABASE_NAME,
