@@ -75,6 +75,10 @@ export class UserServiceImpl implements UserService {
         userId: string,
         updateData: Omit<UpdateProfileDto, 'userId'>
     ): Promise<UserProfileDto> {
+        if (Object.keys(updateData).length === 0) {
+            throw new HttpError('No fields to update', 400);
+        }
+
         const updatedUser = await this.userRepository.update(
             userId,
             updateData
