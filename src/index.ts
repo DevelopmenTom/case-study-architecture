@@ -2,8 +2,10 @@ import 'reflect-metadata';
 import { json } from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { Application, RequestHandler } from 'express';
 import helmet from 'helmet';
 import { InversifyExpressServer } from 'inversify-express-utils';
+import swaggerUi from 'swagger-ui-express';
 
 // import { createKafkaClient, Producer, Consumer } from '@marta/eventbus/dist';
 
@@ -14,6 +16,7 @@ import {
 
 import './controllers/status-controller/status-controller';
 import './controllers/user-controller/user-controller';
+import { swaggerSpec } from './config/swagger.config';
 import { errorHandler } from './middlewares/error-handler.middleware';
 
 dotenv.config();
@@ -35,16 +38,23 @@ dotenv.config();
         const app = new InversifyExpressServer(diContainer, null, {
             rootPath: '/partner-app/api',
         });
-        app.setConfig(app => {
-            app.use(helmet());
-            app.use(cors());
-            app.use(json());
+        app.setConfig((expressApp: Application) => {
+            expressApp.use(helmet());
+            expressApp.use(cors());
+            expressApp.use(json());
         });
         app.setErrorConfig(app => {
             app.use(errorHandler);
         });
 
         const server = app.build();
+
+        server.use(
+            '/partner-app/api/docs',
+            // @todo: remove type case once swagger's own dependency of @types/express aligns with exact type of current express:
+            swaggerUi.serve as unknown as RequestHandler[],
+            swaggerUi.setup(swaggerSpec) as unknown as RequestHandler
+        );
 
         const PORT = process.env.PORT || 9000;
 

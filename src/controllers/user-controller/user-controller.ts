@@ -21,6 +21,12 @@ import {
 } from '../../types/Dto';
 import { UserService } from '../../types/services';
 
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management and authentication
+ */
 @controller('/users')
 export class UserController extends BaseController {
     constructor(
@@ -29,6 +35,38 @@ export class UserController extends BaseController {
         super();
     }
 
+    /**
+     * @swagger
+     * /users/register:
+     *   post:
+     *     summary: Register a new user
+     *     tags: [Users]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/RegisterUserDto'
+     *     responses:
+     *       201:
+     *         description: User successfully registered
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 id:
+     *                   type: string
+     *                   description: Newly created user ID
+     *       400:
+     *         description: Invalid input data
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     *       429:
+     *         description: Too many requests
+     */
     @httpPost(
         '/register',
         rateLimitMiddleware(),
@@ -43,6 +81,38 @@ export class UserController extends BaseController {
         });
     }
 
+    /**
+     * @swagger
+     * /users/login:
+     *   post:
+     *     summary: Authenticate user and get JWT token
+     *     tags: [Users]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/LoginUserDto'
+     *     responses:
+     *       200:
+     *         description: Successfully authenticated
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 token:
+     *                   type: string
+     *                   description: JWT authentication token
+     *       400:
+     *         description: Invalid credentials
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     *       429:
+     *         description: Too many requests
+     */
     @httpPost('/login', rateLimitMiddleware(), validateRequest(LoginUserDto))
     async login(@request() req: Request, @response() res: Response) {
         const { email, password } = req.body as LoginUserDto;
@@ -52,6 +122,36 @@ export class UserController extends BaseController {
         });
     }
 
+    /**
+     * @swagger
+     * /users/profile:
+     *   get:
+     *     summary: Get user profile
+     *     tags: [Users]
+     *     security:
+     *       - bearerAuth: []
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/GetProfileDto'
+     *     responses:
+     *       200:
+     *         description: User profile retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/UserProfileDto'
+     *       401:
+     *         description: Unauthorized - Invalid or missing token
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     *       429:
+     *         description: Too many requests
+     */
     @httpGet(
         '/profile',
         rateLimitMiddleware(),
@@ -64,6 +164,36 @@ export class UserController extends BaseController {
         res.status(200).json(profile);
     }
 
+    /**
+     * @swagger
+     * /users/profile:
+     *   put:
+     *     summary: Update user profile
+     *     tags: [Users]
+     *     security:
+     *       - bearerAuth: []
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/UpdateProfileDto'
+     *     responses:
+     *       200:
+     *         description: User profile updated successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/UserProfileDto'
+     *       401:
+     *         description: Unauthorized - Invalid or missing token
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     *       429:
+     *         description: Too many requests
+     */
     @httpPut(
         '/profile',
         rateLimitMiddleware(),
