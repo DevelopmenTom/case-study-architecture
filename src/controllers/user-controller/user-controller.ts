@@ -11,23 +11,13 @@ import {
 
 import { BaseController, DISymbols } from '../../lib';
 import { authenticateRequest } from '../../middlewares/auth.middleware';
-import {
-    getProfileSchema,
-    GetProfileInput,
-} from '../../middlewares/schemas/get-profile.schema';
-import {
-    loginUserSchema,
-    LoginUserInput,
-} from '../../middlewares/schemas/login-user.schema';
-import {
-    registerUserSchema,
-    RegisterUserInput,
-} from '../../middlewares/schemas/register-user.schema';
-import {
-    updateProfileSchema,
-    UpdateProfileInput,
-} from '../../middlewares/schemas/update-profile.schema';
 import { validateRequest } from '../../middlewares/validate-request.middleware';
+import {
+    GetProfileDto,
+    LoginUserDto,
+    RegisterUserDto,
+    UpdateProfileDto,
+} from '../../types/Dto';
 import { UserService } from '../../types/services';
 
 @controller('/users')
@@ -38,43 +28,39 @@ export class UserController extends BaseController {
         super();
     }
 
-    @httpPost('/register', validateRequest(registerUserSchema))
+    @httpPost('/register', validateRequest(RegisterUserDto))
     async register(@request() req: Request, @response() res: Response) {
         const user = await this.userService.register(
-            req.body as RegisterUserInput
+            req.body as RegisterUserDto
         );
         res.status(201).json({
             id: user.id,
         });
     }
 
-    @httpPost('/login', validateRequest(loginUserSchema))
+    @httpPost('/login', validateRequest(LoginUserDto))
     async login(@request() req: Request, @response() res: Response) {
-        const { email, password } = req.body as LoginUserInput;
+        const { email, password } = req.body as LoginUserDto;
         const token = await this.userService.authenticate(email, password);
         res.status(200).json({
             token,
         });
     }
 
-    @httpGet(
-        '/profile',
-        validateRequest(getProfileSchema),
-        authenticateRequest()
-    )
+    @httpGet('/profile', validateRequest(GetProfileDto), authenticateRequest())
     async getProfile(@request() req: Request, @response() res: Response) {
-        const { userId } = req.body as GetProfileInput;
+        const { userId } = req.body as GetProfileDto;
         const profile = await this.userService.getProfile(userId);
         res.status(200).json(profile);
     }
 
     @httpPut(
         '/profile',
-        validateRequest(updateProfileSchema),
+        validateRequest(UpdateProfileDto),
         authenticateRequest()
     )
     async updateProfile(@request() req: Request, @response() res: Response) {
-        const { userId, ...updateData } = req.body as UpdateProfileInput;
+        const { userId, ...updateData } = req.body as UpdateProfileDto;
         const profile = await this.userService.updateProfile(
             userId,
             updateData

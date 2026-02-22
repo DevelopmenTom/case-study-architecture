@@ -184,6 +184,7 @@ describe('UserService (unit tests)', () => {
         it('should update and return user profile', async () => {
             const userId = randomUUID();
             const updateDto: UpdateProfileDto = {
+                userId: 'mockId',
                 firstName: 'UpdatedFirstName',
                 lastName: 'UpdatedLastName',
             };
@@ -213,6 +214,7 @@ describe('UserService (unit tests)', () => {
         it('should update only firstName when lastName is not provided', async () => {
             const userId = randomUUID();
             const updateDto: UpdateProfileDto = {
+                userId: 'mockId',
                 firstName: 'NewFirstName',
             };
             const updatedUser = {
@@ -241,6 +243,7 @@ describe('UserService (unit tests)', () => {
         it('should update only lastName when firstName is not provided', async () => {
             const userId = randomUUID();
             const updateDto: UpdateProfileDto = {
+                userId: 'mockId',
                 lastName: 'NewLastName',
             };
             const updatedUser = {

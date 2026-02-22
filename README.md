@@ -237,13 +237,6 @@ If you have any questions about the requirements or need clarification, please r
 
 ## 💭 Design Decisions and Known Issues
 
-### Request Validation Strategy
-I have implemented request payload validation using **Zod** after writing the internals of the app using TypeScript DTOs. This approach is functional but suboptimal.
-
-**Decision postponed:** Choosing between Zod type inference throughout the stack vs. class-validator with DTOs. This decision depends on:
-- **GraphQL adoption:** Makes the dilemma irrelevant if we use GraphQL
-- **Client SDK implementation:** If we build an SDK, we'll want to use the same validation tool from client through controller layer
-
 ### CI/CD Implementation
 I have scaffolded a basic CI pipeline using **GitHub Actions** (dockerizing the app in the process). The pipeline is functional but has room for improvement:
 

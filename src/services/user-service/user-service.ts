@@ -76,7 +76,7 @@ export class UserServiceImpl implements UserService {
 
     async updateProfile(
         userId: string,
-        updateData: UpdateProfileDto
+        updateData: Omit<UpdateProfileDto, 'userId'>
     ): Promise<UserProfileDto> {
         const updatedUser = await this.userRepository.update(
             userId,

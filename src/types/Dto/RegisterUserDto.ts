@@ -1,6 +1,34 @@
-export interface RegisterUserDto {
-    email: string;
-    unhashedPassword: string;
-    firstName: string;
-    lastName: string;
+import { Transform } from 'class-transformer';
+import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
+
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+export class RegisterUserDto {
+    @IsEmail({}, { message: 'Invalid email format' })
+    @Transform(({ value }) =>
+        typeof value === 'string' ? value.toLowerCase().trim() : value
+    )
+    email!: string;
+
+    @IsString()
+    @MinLength(8, { message: 'Password must be at least 8 characters' })
+    @Matches(passwordRegex, {
+        message:
+            'Password must contain at least one uppercase letter, one lowercase letter, and one number',
+    })
+    unhashedPassword!: string;
+
+    @IsString()
+    @MinLength(1, { message: 'First name is required' })
+    @Transform(({ value }) =>
+        typeof value === 'string' ? value.trim() : value
+    )
+    firstName!: string;
+
+    @IsString()
+    @MinLength(1, { message: 'Last name is required' })
+    @Transform(({ value }) =>
+        typeof value === 'string' ? value.trim() : value
+    )
+    lastName!: string;
 }

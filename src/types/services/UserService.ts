@@ -7,6 +7,6 @@ export interface UserService {
     getProfile(userId: string): Promise<UserProfileDto>;
     updateProfile(
         userId: string,
-        data: UpdateProfileDto
+        data: Omit<UpdateProfileDto, 'userId'>
     ): Promise<UserProfileDto>;
 }
