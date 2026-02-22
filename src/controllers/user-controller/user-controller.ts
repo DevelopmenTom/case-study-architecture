@@ -14,11 +14,11 @@ import { authenticateRequest } from '../../middlewares/auth.middleware';
 import { rateLimitMiddleware } from '../../middlewares/rate-limit.middleware';
 import { validateRequest } from '../../middlewares/validate-request.middleware';
 import {
-    GetProfileDto,
     LoginUserDto,
     RegisterUserDto,
     UpdateProfileDto,
 } from '../../types/Dto';
+import { HttpError } from '../../types/errors';
 import { UserService } from '../../types/services';
 
 /**
@@ -130,12 +130,6 @@ export class UserController extends BaseController {
      *     tags: [Users]
      *     security:
      *       - bearerAuth: []
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/GetProfileDto'
      *     responses:
      *       200:
      *         description: User profile retrieved successfully
@@ -152,15 +146,15 @@ export class UserController extends BaseController {
      *       429:
      *         description: Too many requests
      */
-    @httpGet(
-        '/profile',
-        rateLimitMiddleware(),
-        validateRequest(GetProfileDto),
-        authenticateRequest()
-    )
+    @httpGet('/profile', rateLimitMiddleware(), authenticateRequest())
     async getProfile(@request() req: Request, @response() res: Response) {
-        const { userId } = req.body as GetProfileDto;
-        const profile = await this.userService.getProfile(userId);
+        if (!req.auth?.userId) {
+            throw new HttpError(
+                'No userId found in token payload for getProfile',
+                400
+            );
+        }
+        const profile = await this.userService.getProfile(req.auth?.userId);
         res.status(200).json(profile);
     }
 

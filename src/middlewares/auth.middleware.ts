@@ -34,7 +34,7 @@ export const authenticateRequest = () => {
             if (payload.role === UserRoles.USER) {
                 const { userId } = req.body;
 
-                if (payload.userId !== userId) {
+                if (userId && payload.userId !== userId) {
                     return res.status(401).json({ error: 'Unauthorized' });
                 }
 
