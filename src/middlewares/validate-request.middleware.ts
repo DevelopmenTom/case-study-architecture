@@ -9,7 +9,7 @@ export const validateRequest = (dtoClass: ClassConstructor) => {
         try {
             const dtoInstance = plainToInstance(dtoClass, req.body, {
                 enableImplicitConversion: true,
-                excludeExtraneousValues: false,
+                excludeExtraneousValues: true,
             });
 
             const errors: ValidationError[] = await validate(dtoInstance);
