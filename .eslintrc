@@ -20,7 +20,7 @@
         "space-before-function-paren": 0,
         "semi": ["error", "always"],
         "padded-blocks": 0,
-        "indent": ["error", 4],
+        "indent": 0,
         "@typescript-eslint/ban-types": 0,
         "@typescript-eslint/no-inferrable-types": 0,
         "@typescript-eslint/no-explicit-any": 0,
