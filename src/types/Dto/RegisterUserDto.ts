@@ -1,15 +1,17 @@
-import { Transform } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
 export class RegisterUserDto {
+    @Expose()
     @IsEmail({}, { message: 'Invalid email format' })
     @Transform(({ value }) =>
         typeof value === 'string' ? value.toLowerCase().trim() : value
     )
     email!: string;
 
+    @Expose()
     @IsString()
     @MinLength(8, { message: 'Password must be at least 8 characters' })
     @Matches(passwordRegex, {
@@ -18,6 +20,7 @@ export class RegisterUserDto {
     })
     unhashedPassword!: string;
 
+    @Expose()
     @IsString()
     @MinLength(1, { message: 'First name is required' })
     @Transform(({ value }) =>
@@ -25,6 +28,7 @@ export class RegisterUserDto {
     )
     firstName!: string;
 
+    @Expose()
     @IsString()
     @MinLength(1, { message: 'Last name is required' })
     @Transform(({ value }) =>
