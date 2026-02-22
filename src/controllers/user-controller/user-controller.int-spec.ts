@@ -50,6 +50,40 @@ describe('UserController Integration Tests', () => {
             expect(response.status).toBe(400);
         });
 
+        it('should get back 400 when last name is too long', async () => {
+            const userData = {
+                email: `test${Date.now()}@example.com`,
+                unhashedPassword: 'Password123',
+                firstName: 'John',
+                lastName:
+                    'WayWayWayWayWayWayWayTooLongALastNameEvenWithMultipleNames',
+            };
+
+            const response = await request(baseUrl)
+                .post('/users/register')
+                .send(userData);
+
+            expect(response.status).toBe(400);
+        });
+
+        it('should get descriptive error message when last name is too long', async () => {
+            const userData = {
+                email: `test${Date.now()}@example.com`,
+                unhashedPassword: 'Password123',
+                firstName: 'John',
+                lastName:
+                    'WayWayWayWayWayWayWayTooLongALastNameEvenWithMultipleNames',
+            };
+
+            const response = await request(baseUrl)
+                .post('/users/register')
+                .send(userData);
+
+            expect(response.body.details[0].message).toEqual(
+                'Last name too long'
+            );
+        });
+
         it('should get back 500 with "Internal Server Error" when duplicate email causes TypeORM error', async () => {
             const duplicateEmail = `duplicate-test-${Date.now()}@example.com`;
 

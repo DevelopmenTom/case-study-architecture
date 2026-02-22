@@ -1,5 +1,11 @@
 import { Expose, Transform } from 'class-transformer';
-import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
+import {
+    IsEmail,
+    IsString,
+    Matches,
+    MaxLength,
+    MinLength,
+} from 'class-validator';
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
@@ -23,6 +29,7 @@ export class RegisterUserDto {
     @Expose()
     @IsString()
     @MinLength(1, { message: 'First name is required' })
+    @MaxLength(20, { message: 'First name too long' })
     @Transform(({ value }) =>
         typeof value === 'string' ? value.trim() : value
     )
@@ -31,6 +38,7 @@ export class RegisterUserDto {
     @Expose()
     @IsString()
     @MinLength(1, { message: 'Last name is required' })
+    @MaxLength(20, { message: 'Last name too long' })
     @Transform(({ value }) =>
         typeof value === 'string' ? value.trim() : value
     )
