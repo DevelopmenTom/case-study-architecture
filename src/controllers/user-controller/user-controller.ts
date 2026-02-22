@@ -11,6 +11,7 @@ import {
 
 import { BaseController, DISymbols } from '../../lib';
 import { authenticateRequest } from '../../middlewares/auth.middleware';
+import { rateLimitMiddleware } from '../../middlewares/rate-limit.middleware';
 import { validateRequest } from '../../middlewares/validate-request.middleware';
 import {
     GetProfileDto,
@@ -28,7 +29,11 @@ export class UserController extends BaseController {
         super();
     }
 
-    @httpPost('/register', validateRequest(RegisterUserDto))
+    @httpPost(
+        '/register',
+        rateLimitMiddleware(),
+        validateRequest(RegisterUserDto)
+    )
     async register(@request() req: Request, @response() res: Response) {
         const user = await this.userService.register(
             req.body as RegisterUserDto
@@ -38,7 +43,7 @@ export class UserController extends BaseController {
         });
     }
 
-    @httpPost('/login', validateRequest(LoginUserDto))
+    @httpPost('/login', rateLimitMiddleware(), validateRequest(LoginUserDto))
     async login(@request() req: Request, @response() res: Response) {
         const { email, password } = req.body as LoginUserDto;
         const token = await this.userService.authenticate(email, password);
@@ -47,7 +52,12 @@ export class UserController extends BaseController {
         });
     }
 
-    @httpGet('/profile', validateRequest(GetProfileDto), authenticateRequest())
+    @httpGet(
+        '/profile',
+        rateLimitMiddleware(),
+        validateRequest(GetProfileDto),
+        authenticateRequest()
+    )
     async getProfile(@request() req: Request, @response() res: Response) {
         const { userId } = req.body as GetProfileDto;
         const profile = await this.userService.getProfile(userId);
@@ -56,6 +66,7 @@ export class UserController extends BaseController {
 
     @httpPut(
         '/profile',
+        rateLimitMiddleware(),
         validateRequest(UpdateProfileDto),
         authenticateRequest()
     )
