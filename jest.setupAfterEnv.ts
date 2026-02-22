@@ -14,9 +14,3 @@ beforeAll(async () => {
     const userRepository = setupDataSource.getRepository(User);
     await userRepository.save(mockUserData());
 }, 30000);
-
-afterAll(async () => {
-    if (setupDataSource?.isInitialized) {
-        await setupDataSource.destroy();
-    }
-});
