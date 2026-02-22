@@ -1,23 +1,32 @@
 import { Request, Response, NextFunction } from 'express';
+import * as jwt from 'jsonwebtoken';
 
-import { diContainer } from '../../inversify.config';
-import { DISymbols } from '../lib';
 import { UserRoles } from '../types/enums';
-import { AuthService } from '../types/services';
+import { ITokenPayload } from '../types/payloads';
 
 import { authenticateRequest } from './auth.middleware';
 
 describe('authenticateRequest', () => {
-    let authService: AuthService;
+    const JWT_SECRET = 'test-secret';
     let mockReq: Partial<Request>;
     let mockRes: Partial<Response>;
     let mockNext: NextFunction;
     let jsonMock: jest.Mock;
     let statusMock: jest.Mock;
+    let originalJwtSecret: string | undefined;
 
     beforeAll(() => {
-        authService = diContainer.get<AuthService>(DISymbols.AuthService);
+        originalJwtSecret = process.env.JWT_SECRET;
+        process.env.JWT_SECRET = JWT_SECRET;
     });
+
+    afterAll(() => {
+        process.env.JWT_SECRET = originalJwtSecret;
+    });
+
+    const generateToken = (payload: ITokenPayload): string => {
+        return jwt.sign(payload, JWT_SECRET);
+    };
 
     beforeEach(() => {
         jsonMock = jest.fn();
@@ -62,7 +71,7 @@ describe('authenticateRequest', () => {
     describe('attaching auth to req.auth', () => {
         it('should attach role and userId to req.auth for admin user', () => {
             const payload = { userId: 'admin-123', role: UserRoles.ADMIN };
-            const token = authService.generateToken(payload);
+            const token = generateToken(payload);
 
             mockReq.headers = { authorization: `Bearer ${token}` };
 
@@ -79,7 +88,7 @@ describe('authenticateRequest', () => {
 
         it('should attach role and userId to req.auth for regular user', () => {
             const payload = { userId: 'user-456', role: UserRoles.USER };
-            const token = authService.generateToken(payload);
+            const token = generateToken(payload);
 
             mockReq.headers = { authorization: `Bearer ${token}` };
             mockReq.body = { userId: 'user-456' };
@@ -96,7 +105,7 @@ describe('authenticateRequest', () => {
 
         it('should attach auth before checking authorization for regular users', () => {
             const payload = { userId: 'user-789', role: UserRoles.USER };
-            const token = authService.generateToken(payload);
+            const token = generateToken(payload);
 
             mockReq.headers = { authorization: `Bearer ${token}` };
             mockReq.body = { userId: 'different-user' };
@@ -116,7 +125,7 @@ describe('authenticateRequest', () => {
     describe('admin authorization', () => {
         it('should allow admin users to proceed', () => {
             const payload = { userId: 'admin-123', role: UserRoles.ADMIN };
-            const token = authService.generateToken(payload);
+            const token = generateToken(payload);
 
             mockReq.headers = { authorization: `Bearer ${token}` };
 
@@ -131,7 +140,7 @@ describe('authenticateRequest', () => {
     describe('user authorization', () => {
         it('should allow user to proceed if userId matches token', () => {
             const payload = { userId: 'user-123', role: UserRoles.USER };
-            const token = authService.generateToken(payload);
+            const token = generateToken(payload);
 
             mockReq.headers = { authorization: `Bearer ${token}` };
             mockReq.body = { userId: 'user-123' };
@@ -145,7 +154,7 @@ describe('authenticateRequest', () => {
 
         it('should return 401 if userId does not match token', () => {
             const payload = { userId: 'user-123', role: UserRoles.USER };
-            const token = authService.generateToken(payload);
+            const token = generateToken(payload);
 
             mockReq.headers = { authorization: `Bearer ${token}` };
             mockReq.body = { userId: 'user-456' };
@@ -162,7 +171,7 @@ describe('authenticateRequest', () => {
     describe('Bearer token format', () => {
         it('should handle token with Bearer prefix', () => {
             const payload = { userId: 'admin-123', role: UserRoles.ADMIN };
-            const token = authService.generateToken(payload);
+            const token = generateToken(payload);
 
             mockReq.headers = { authorization: `Bearer ${token}` };
 
@@ -174,7 +183,7 @@ describe('authenticateRequest', () => {
 
         it('should handle token without Bearer prefix', () => {
             const payload = { userId: 'admin-123', role: UserRoles.ADMIN };
-            const token = authService.generateToken(payload);
+            const token = generateToken(payload);
 
             mockReq.headers = { authorization: token };
 
