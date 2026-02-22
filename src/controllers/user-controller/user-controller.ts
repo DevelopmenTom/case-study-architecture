@@ -143,6 +143,8 @@ export class UserController extends BaseController {
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Error'
+     *       404:
+     *          description: User Profile was not found
      *       429:
      *         description: Too many requests
      */
