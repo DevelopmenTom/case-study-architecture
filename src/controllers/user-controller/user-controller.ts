@@ -193,8 +193,8 @@ export class UserController extends BaseController {
     @httpPut(
         '/profile',
         rateLimitMiddleware(),
-        validateRequest(UpdateProfileDto),
-        authenticateRequest()
+        authenticateRequest(),
+        validateRequest(UpdateProfileDto)
     )
     async updateProfile(@request() req: Request, @response() res: Response) {
         const { userId, ...updateData } = req.body as UpdateProfileDto;
