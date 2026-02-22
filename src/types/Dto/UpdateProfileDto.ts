@@ -1,5 +1,11 @@
-import { Expose } from 'class-transformer';
-import { IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
+import { Expose, Transform } from 'class-transformer';
+import {
+    IsOptional,
+    IsString,
+    IsUUID,
+    MaxLength,
+    MinLength,
+} from 'class-validator';
 
 export class UpdateProfileDto {
     @Expose()
@@ -10,11 +16,19 @@ export class UpdateProfileDto {
     @IsOptional()
     @IsString()
     @MinLength(1)
+    @MaxLength(20, { message: 'First name too long' })
+    @Transform(({ value }) =>
+        typeof value === 'string' ? value.trim() : value
+    )
     firstName?: string;
 
     @Expose()
     @IsOptional()
     @IsString()
     @MinLength(1)
+    @MaxLength(20, { message: 'Last name too long' })
+    @Transform(({ value }) =>
+        typeof value === 'string' ? value.trim() : value
+    )
     lastName?: string;
 }
