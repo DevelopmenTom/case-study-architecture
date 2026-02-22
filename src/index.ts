@@ -14,10 +14,9 @@ import {
     initializeDataSourceInContainer,
 } from '../inversify.config';
 
-import './controllers/status-controller/status-controller';
-import './controllers/user-controller/user-controller';
 import { swaggerSpec } from './config/swagger.config';
 import { errorHandler } from './middlewares/error-handler.middleware';
+import './controllers';
 
 dotenv.config();
 
