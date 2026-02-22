@@ -66,13 +66,14 @@ const getDBConfig = async () => {
         };
     }
 
-    const getPortFromEnv = DATABASE_PORT => {
+    const getPortFromEnv = (DATABASE_PORT): number => {
         const parsedEnvVar = parseInt(DATABASE_PORT);
 
         if (Number.isNaN(parsedEnvVar)) {
-            throw new Error(
-                'DATABASE_PORT is not a number, will not be able to connect to DB'
+            console.warn(
+                'DATABASE_PORT env var is not a number, reverting to system default'
             );
+            return 5433;
         }
 
         return parsedEnvVar;
