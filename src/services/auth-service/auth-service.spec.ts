@@ -9,6 +9,9 @@ jest.mock('jsonwebtoken');
 describe('AuthService (unit tests)', () => {
     let authService: AuthServiceImpl;
     const mockJwt = jwt as jest.Mocked<typeof jwt>;
+    const mockToken = 'mock-jwt-token';
+    const mockSecret = 'test-secret';
+    const mockExpiresIn = '1h';
 
     beforeEach(() => {
         authService = new AuthServiceImpl();
@@ -20,9 +23,6 @@ describe('AuthService (unit tests)', () => {
             const payload: ITokenPayload = {
                 userId: 'user-123',
             };
-            const mockToken = 'mock-jwt-token';
-            const mockSecret = 'test-secret';
-            const mockExpiresIn = '1h';
 
             process.env.JWT_SECRET = mockSecret;
             process.env.JWT_EXPIRES_IN = mockExpiresIn;
@@ -46,6 +46,19 @@ describe('AuthService (unit tests)', () => {
 
             expect(() => authService.generateToken(payload)).toThrow(
                 'JWT_SECRET is not defined in environment variables'
+            );
+        });
+
+        it('should throw an error if JWT_EXPIRES_IN is not defined', () => {
+            process.env.JWT_SECRET = mockSecret;
+            delete process.env.JWT_EXPIRES_IN;
+
+            const payload: ITokenPayload = {
+                userId: 'user-789',
+            };
+
+            expect(() => authService.generateToken(payload)).toThrow(
+                'JWT_EXPIRES_IN is not defined in environment variables'
             );
         });
 

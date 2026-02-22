@@ -16,6 +16,12 @@ export class AuthServiceImpl implements AuthService {
             );
         }
 
+        if (!expiresIn) {
+            throw new Error(
+                'JWT_EXPIRES_IN is not defined in environment variables'
+            );
+        }
+
         return jwt.sign(payload, secret, { expiresIn });
     }
 
