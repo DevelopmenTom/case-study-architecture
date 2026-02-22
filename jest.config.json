@@ -11,5 +11,6 @@
   ],
   "coverageDirectory": "coverage",
   "testTimeout": 30000,
-  "setupFiles": ["<rootDir>/jest.setup.ts"]
+  "setupFiles": ["<rootDir>/jest.setup.ts"],
+  "setupFilesAfterEnv": ["<rootDir>/jest.setupAfterEnv.ts"]
 }

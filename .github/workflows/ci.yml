@@ -31,7 +31,7 @@ jobs:
           timeout 60 sh -c 'until docker compose exec -T postgres pg_isready -U postgres; do sleep 2; done'
 
       - name: Run unit tests
-        run: yarn test:unit --runInBand
+        run: yarn test:unit
         env:
           DATABASE_HOST: localhost
           DATABASE_PORT: 5433
@@ -43,7 +43,7 @@ jobs:
           PORT: 9000
 
       - name: Run integration tests
-        run: yarn test:int --runInBand
+        run: yarn test:int
         env:
           DATABASE_HOST: localhost
           DATABASE_PORT: 5433
