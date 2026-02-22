@@ -251,8 +251,7 @@ If you have any questions about the requirements or need clarification, please r
 I have scaffolded a basic CI pipeline using **GitHub Actions** (dockerizing the app in the process). The pipeline is functional but has room for improvement:
 
 **Current limitations:**
-1. **Test execution:** Database migrations need to run before tests, which currently forces tests to run serially (`--runInBand`). Running tests in parallel causes race conditions when creating the User table.
-2. **Environment variables:** Secure environment variable configuration is needed for deployment flows. Not a priority yet since CI only verifies test coverage and builds (no secrets required).
+1. **Environment variables:** Secure environment variable configuration is needed for deployment flows. Not a priority yet since CI only verifies test coverage and builds (no secrets required).
 
 ### Input Sanitization
 I did not implement additional input sanitization beyond validation. Since we're strictly using TypeORM repository methods, there's no SQL injection risk. This is a conscious decision, not an oversight.

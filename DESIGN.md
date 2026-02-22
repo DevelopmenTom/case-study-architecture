@@ -146,7 +146,6 @@ describe('UserService', () => {
 
 **Database Strategy**:
 - Uses Docker Compose PostgreSQL instance
-- **Current Limitation**: Tests run serially (`--runInBand`) due to migration race conditions
 
 **Example Structure**:
 ```typescript
@@ -330,20 +329,10 @@ app.use(cors({
 
 #### 3. Testing Phase
 ```yaml
-- Run unit tests (yarn test:unit --runInBand)
-- Run integration tests (yarn test:int --runInBand)
+- Run unit tests (yarn test:unit)
+- Run integration tests (yarn test:int)
 - Environment variables injected via CI
 ```
-
-**Current Limitation** (from README):
-- Tests run serially (`--runInBand`) to avoid migration race conditions
-- Race condition: Multiple test processes trying to create User table simultaneously
-- Impact: Slower CI execution (~2-3 minutes)
-
-**Future Optimization**:
-- Implement per-process test databases
-- Use transaction rollback strategy
-- Or: Run migrations once before parallel test execution
 
 #### 4. Build Phase
 ```yaml
@@ -410,14 +399,10 @@ yarn lint-staged
 ### Future CI/CD Enhancements
 
 #### Short-term Improvements
-1. **Parallel Test Execution**
-   - Resolve migration race conditions
-   - Reduce CI time by 50%
-
-2. **Coverage Thresholds**
+1. **Coverage Thresholds**
    - Fail build if coverage < 80%
 
-3. **Security Scanning**
+2. **Security Scanning**
    - Dependency vulnerability scanning (npm audit, Snyk)
    - Docker image scanning (Trivy)
 
