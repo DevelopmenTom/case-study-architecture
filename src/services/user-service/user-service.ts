@@ -82,6 +82,10 @@ export class UserServiceImpl implements UserService {
             updateData
         );
 
+        if (!updatedUser) {
+            throw new HttpError('User not found', 404);
+        }
+
         return {
             email: updatedUser.email,
             firstName: updatedUser.firstName,
