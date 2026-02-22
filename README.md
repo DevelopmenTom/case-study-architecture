@@ -117,43 +117,53 @@ Create a middleware to protect routes that require authentication:
 - PostgreSQL database
 - Yarn package manager
 
-### Installation
+### Installation and Running the App
 
-```bash
-# Install dependencies
-yarn install
+1. **Install dependencies:**
+   ```bash
+   yarn install
+   ```
 
-# Set up environment variables
-cp env.example .env
+2. **Set up environment variables:**
+   ```bash
+   cp env.example .env
+   ```
 
-# Start development server
-yarn dev
-```
+   Edit the `.env` file with your database credentials:
+   ```env
+   PORT=9000
+   DATABASE_HOST=localhost
+   DATABASE_PORT=5432
+   DATABASE_NAME=case_study_db
+   DATABASE_USER=postgres
+   DATABASE_PASSWORD=your_password
+   JWT_SECRET=your_jwt_secret_key
+   JWT_EXPIRES_IN=24h
+   ```
 
-### Environment Variables
+3. **Run with Docker Compose:**
+   ```bash
+   docker-compose up
+   ```
 
-Create a `.env` file with the following variables:
-
-```env
-PORT=9000
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_NAME=case_study_db
-DATABASE_USER=postgres
-DATABASE_PASSWORD=your_password
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRES_IN=24h
-```
+   This will start both the application and PostgreSQL database in containers.
 
 ### Running Tests
+
+The project includes both unit tests and integration tests:
 
 ```bash
 # Run all tests
 yarn test
 
-# Run tests in watch mode
-yarn test:watch
+# Run only unit tests
+yarn test:unit
+
+# Run only integration tests
+yarn test:integration
 ```
+
+**Note:** Integration tests require both the application and database to be running. please use docker.
 
 ---
 
