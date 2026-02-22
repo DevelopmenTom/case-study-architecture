@@ -1,47 +1,48 @@
 import * as jwt from 'jsonwebtoken';
 
-import { diContainer } from '../../../inversify.config';
-import { DISymbols } from '../../lib';
 import { UserRoles } from '../../types/enums';
-import { AuthService } from '../../types/services';
+import { ITokenPayload } from '../../types/payloads';
 
-describe('AuthService', () => {
-    let authService: AuthService;
+import { AuthServiceImpl } from './auth-service';
 
-    beforeAll(() => {
-        authService = diContainer.get<AuthService>(DISymbols.AuthService);
+jest.mock('jsonwebtoken');
+
+describe('AuthService (unit tests)', () => {
+    let authService: AuthServiceImpl;
+    const mockJwt = jwt as jest.Mocked<typeof jwt>;
+
+    beforeEach(() => {
+        authService = new AuthServiceImpl();
+        jest.clearAllMocks();
     });
 
     describe('generateToken', () => {
-        it('should generate return the JWT token as string', () => {
-            const payload = {
+        it('should call jwt.sign with correct parameters', () => {
+            const payload: ITokenPayload = {
                 userId: 'user-123',
                 role: UserRoles.USER,
             };
+            const mockToken = 'mock-jwt-token';
+            const mockSecret = 'test-secret';
+            const mockExpiresIn = '1h';
 
-            const token = authService.generateToken(payload);
+            process.env.JWT_SECRET = mockSecret;
+            process.env.JWT_EXPIRES_IN = mockExpiresIn;
 
-            expect(typeof token).toBe('string');
-        });
+            mockJwt.sign.mockReturnValue(mockToken as any);
 
-        it('should generate a token that can be decoded with the correct payload', () => {
-            const payload = {
-                userId: 'user-456',
-                role: UserRoles.ADMIN,
-            };
+            const result = authService.generateToken(payload);
 
-            const token = authService.generateToken(payload);
-            const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
-
-            expect(decoded.userId).toBe(payload.userId);
-            expect(decoded.role).toBe(payload.role);
+            expect(mockJwt.sign).toHaveBeenCalledWith(payload, mockSecret, {
+                expiresIn: mockExpiresIn,
+            });
+            expect(result).toBe(mockToken);
         });
 
         it('should throw an error if JWT_SECRET is not defined', () => {
-            const originalSecret = process.env.JWT_SECRET;
             delete process.env.JWT_SECRET;
 
-            const payload = {
+            const payload: ITokenPayload = {
                 userId: 'user-789',
                 role: UserRoles.USER,
             };
@@ -49,25 +50,70 @@ describe('AuthService', () => {
             expect(() => authService.generateToken(payload)).toThrow(
                 'JWT_SECRET is not defined in environment variables'
             );
-
-            process.env.JWT_SECRET = originalSecret;
         });
 
-        it('should generate different tokens for different payloads', () => {
-            const payload1 = {
-                userId: 'user-1',
+        it('should use JWT_EXPIRES_IN from environment', () => {
+            const payload: ITokenPayload = {
+                userId: 'user-456',
+                role: UserRoles.ADMIN,
+            };
+            const mockExpiresIn = '2d';
+
+            process.env.JWT_SECRET = 'secret';
+            process.env.JWT_EXPIRES_IN = mockExpiresIn;
+
+            mockJwt.sign.mockReturnValue('token' as any);
+
+            authService.generateToken(payload);
+
+            expect(mockJwt.sign).toHaveBeenCalledWith(payload, 'secret', {
+                expiresIn: mockExpiresIn,
+            });
+        });
+    });
+
+    describe('verify', () => {
+        it('should call jwt.verify with correct parameters', () => {
+            const token = 'mock-token';
+            const mockSecret = 'test-secret';
+            const mockPayload: ITokenPayload = {
+                userId: 'user-123',
                 role: UserRoles.USER,
             };
 
-            const payload2 = {
-                userId: 'user-2',
+            process.env.JWT_SECRET = mockSecret;
+
+            mockJwt.verify.mockReturnValue(mockPayload as any);
+
+            const result = authService.verify(token);
+
+            expect(mockJwt.verify).toHaveBeenCalledWith(token, mockSecret);
+            expect(result).toEqual(mockPayload);
+        });
+
+        it('should throw an error if JWT_SECRET is not defined', () => {
+            delete process.env.JWT_SECRET;
+
+            expect(() => authService.verify('some-token')).toThrow(
+                'JWT_SECRET is not defined in environment variables'
+            );
+            expect(mockJwt.verify).not.toHaveBeenCalled();
+        });
+
+        it('should return the decoded payload from jwt.verify', () => {
+            const token = 'valid-token';
+            const mockPayload: ITokenPayload = {
+                userId: 'user-999',
                 role: UserRoles.ADMIN,
             };
 
-            const token1 = authService.generateToken(payload1);
-            const token2 = authService.generateToken(payload2);
+            process.env.JWT_SECRET = 'secret';
 
-            expect(token1).not.toBe(token2);
+            mockJwt.verify.mockReturnValue(mockPayload as any);
+
+            const result = authService.verify(token);
+
+            expect(result).toEqual(mockPayload);
         });
     });
 });
